@@ -42,7 +42,7 @@ export default defineComponent({
 
 <style>
 .bg-btc {
-  background-color: #4D4D4D;
+  background-color: #252424;
 }
 
 ::-webkit-scrollbar {

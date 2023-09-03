@@ -1,6 +1,6 @@
 <template>
   <q-page style="min-width: 100vw; height: max-content;" class="flex bg-btc flex-center text-white">
-    <div v-if="!loadingData" style="max-width: 80vw;" class="flex-center full-width q-pt-lg q-pb-md flex">
+    <div style="max-width: 80vw; position: relative;" class="flex-center full-width q-pt-lg q-pb-md flex">
       <div style="margin-top: -30px; height: 15vh;"
         class="q-py-lg full-width justify-start column flex items-start q-px-xl q-py-md ">
         <div class="text-h3 col q-pt-lg q-pb-md flex text-bold">
@@ -27,7 +27,7 @@
               </div>
             </div>
             <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
-              <div class="justify-around flex-center items-center flex row full-width">
+              <div v-if="!loadingData" class="justify-around flex-center items-center flex row full-width">
                 <div class="flex column q-gutter-y-sm items-center">
                   <div class="text-bold text-h6">
                     Total Minted
@@ -72,6 +72,9 @@
                   </div>
                 </div>
               </div>
+              <div class="full-width flex justify-center items-center q-py-md" v-else>
+                <q-spinner size="lg" color="orange"></q-spinner>
+              </div>
             </div>
           </div>
           <div style="height: 50%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
@@ -83,7 +86,7 @@
               </div>
             </div>
             <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
-              <div class="justify-around flex-center items-center flex row full-width">
+              <div v-if="!loadingData" class="justify-around flex-center items-center flex row full-width">
                 <div class="flex column q-gutter-y-sm items-center">
                   <div class="text-bold text-h6">
                     ***
@@ -119,12 +122,16 @@
                   </div>
                 </div>
               </div>
+              <div class="full-width flex justify-center items-center q-py-md" v-else>
+                <q-spinner size="lg" color="orange"></q-spinner>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <!-- GRID COLLECTIONS -->
-      <div style="height: fit-content;" class="full-width q-py-lg row justify-between items-center q-gutter-x-md">
+      <div v-if="!loadingData" style="height: fit-content;"
+        class="full-width q-py-lg row justify-between items-center q-gutter-x-md">
         <div style="width: 100%; height: 100%;" class="col column justify-center q-gutter-y-md flex  items-center">
           <div style="height: 100%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
             class="col flex column">
@@ -242,10 +249,19 @@
       </div>
 
 
+
     </div>
-    <div v-else class="flex flex-center items-center justify-center full-width">
-      <q-spinner size="lg" color="orange"></q-spinner>
+    <div v-if="loadingData" style="top: 0; right: 0; left: 0; bottom: 0; height: 100vh; position: fixed; opacity: 0.8;"
+      class="flex row q-gutter-x-md fixed bg-btc flex-center items-center justify-center full-width">
+      <div v-for="(text, index) in this.loadingTexts" v-show="index === currentTextIndex" :key="index"
+        class="text-orange-5 text-bold text-h6 transition-text" :class="{ 'transition-out': index !== currentTextIndex }">
+        {{ text }}
+      </div>
+      <div>
+        <q-spinner size="lg" color="orange"></q-spinner>
+      </div>
     </div>
+
 
     <q-dialog v-model="singleCollectionDialog">
       <q-card style="min-width: 65vw; min-height: fit-content;" class="bg-btc q-pb-md items-center text-white">
@@ -261,22 +277,25 @@
               </div>
             </div>
             <div class="col flex q-gutter-x-md row justify-end">
-              <div>
-                <q-btn round icon="fab fa-discord" color="orange-5" dense flat size="sm">
+              <div v-if="this.collectionToSee.discordLink != ''">
+                <q-btn :href="this.collectionToSee.discordLink" target="_blank" round icon="fab fa-discord"
+                  color="orange-5" dense flat size="sm">
                   <q-tooltip>
                     Discord
                   </q-tooltip>
                 </q-btn>
               </div>
-              <div>
-                <q-btn round icon="fab fa-twitter" color="orange-5" dense flat size="sm">
+              <div v-if="this.collectionToSee.twitterLink != ''">
+                <q-btn :href="this.collectionToSee.twitterLink" target="_blank" round icon="fab fa-twitter"
+                  color="orange-5" dense flat size="sm">
                   <q-tooltip>
                     Twitter
                   </q-tooltip>
                 </q-btn>
               </div>
-              <div>
-                <q-btn round icon="language" color="orange-5" dense flat size="sm">
+              <div v-if="this.collectionToSee.websiteLink != ''">
+                <q-btn :href="this.collectionToSee.websiteLink" target="_blank" round icon="language" color="orange-5"
+                  dense flat size="sm">
                   <q-tooltip>
                     Project website
                   </q-tooltip>
@@ -338,9 +357,13 @@
                     <div class="flex q-px-sm full-width justify-between items-center row">
                       <div class="justify-start row q-gutter-x-sm flex items-center">
                         <div>
-                          <q-img v-if="event.token.contentType != 'text/html;charset=utf-8'" :src="event.token.contentURI"
+                          <q-img
+                            v-if="event.token.contentType != 'text/html;charset=utf-8' && event.token.contentType != 'text/html'"
+                            :src="`https://ordinals.com/content/${event.tokenId}`"
                             style="width: 60px; height: 60px;"></q-img>
-                          <iframe v-else :src="event.token.contentURI" width="60" height="60"></iframe>
+                          <iframe
+                            v-if="event.token.contentType == 'text/html;charset=utf-8' || event.token.contentType == 'text/html'"
+                            :src="`https://ordinals.com/content/${event.tokenId}`" width="60" height="60"></iframe>
                         </div>
                         <div class="column flex q-gutter-y-sm">
                           <div>
@@ -400,6 +423,8 @@ export default defineComponent({
     return {
       tutorials: false,
       loadingData: true,
+      loadingTexts: ['Scrapping Sales', 'Scrapping Mints', 'Analyzing Data', 'Tracking Wallet', 'Searching Purchases', 'Calculating...', 'Scrapping Real Time Data...'],
+      currentTextIndex: 0,
       dataTracked: [],
       dataTrades: [],
       dataCollections: [],
@@ -425,7 +450,7 @@ export default defineComponent({
     async getTrackedData() {
       const wallets = this.$route.params.id
       try {
-        const response = await axios.get(`http://ordtracker-env.eba-vjvypnee.us-east-1.elasticbeanstalk.com/track/${wallets}`, {
+        const response = await axios.get(`https://api.ordinalstracker.io/track/${wallets}`, {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -448,10 +473,15 @@ export default defineComponent({
       } catch (e) {
         console.error(e)
       }
+    },
+    changeText() {
+      this.currentTextIndex = (this.currentTextIndex + 1) % this.loadingTexts.length;
     }
   },
   mounted() {
     this.getTrackedData()
+    setInterval(this.changeText, 2500);
+
   }
 })
 </script>
@@ -466,8 +496,7 @@ export default defineComponent({
 }
 
 .bg-btc {
-  background-color: #4D4D4D;
-
+  background-color: #252424;
 }
 
 /* Estilo padrão */
@@ -478,6 +507,7 @@ export default defineComponent({
 .arrows-action {
   transition: transform 0.3s;
 }
+
 .arrows-action:hover {
   transition: transform 0.3s;
   background-color: rgba(136, 122, 100, 0.439);
@@ -506,5 +536,16 @@ export default defineComponent({
 
 .hover-effect:hover>div {
   border-color: black;
+}
+
+.transition-text {
+  transition: transform 0.5s, opacity 0.5s;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.transition-out {
+  transform: translateY(-100%);
+  opacity: 0;
 }
 </style>
