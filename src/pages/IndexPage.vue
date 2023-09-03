@@ -1,43 +1,8 @@
 <template>
   <q-page class="flex bg-dark flex-center">
-    <div class="flex absolute-top justify-end items-right q-px-md full-width q-py-sm">
+    <div class="flex absolute-bottom justify-end items-right q-px-lg full-width q-py-md">
       <q-toggle color="orange" icon="on" unchecked-icon="switch" :class="tutorials ? 'text-orange' : 'text-white'"
         label="Tutorials" v-model="tutorials"></q-toggle>
-    </div>
-    <div v-if="searchingFor && this.walletToSearch != ''" class="flex flex-center full-width">
-      <div class="flex flex-center column q-gutter-y-md items-center full-width" v-if="this.walletToSearch != ''">
-        <div class="text-h5 text-orange text-bold">
-          Srapping data from <span style="text-decoration: underline; font-weight: 1000; font-size: 1.6rem;" class="">{{
-            this.walletToSearch.slice(0, 6) + '...' + this.walletToSearch.slice(-6) }}</span>
-        </div>
-        <q-spinner color="orange" size="2rem"></q-spinner>
-      </div>
-    </div>
-    <div v-if="searchingFor && this.walletsToSearch.length > 2" class="flex flex-center full-width">
-      <div class="flex flex-center column q-gutter-y-md items-center full-width" v-if="this.walletsToSearch != []">
-        <div class="text-h5 flex-center text-orange column flex text-bold">
-          <div>
-            Srapping data from wallets
-          </div>
-          <div class="q-py-sm row flex flex-center items-center q-py-md q-gutter-x-md">
-            <div style="border-bottom: solid 0.5px orange; border-radius: 9px; padding-bottom: 4px;">
-              {{ walletsToSearch && this.walletsToSearch[0].slice(0, 6) + '...' + this.walletsToSearch[0].slice(-6) }},
-            </div>
-            <div style="border-bottom: solid 0.5px orange; border-radius: 9px; padding-bottom: 4px;">
-              {{ walletsToSearch && this.walletsToSearch[1].slice(0, 6) + '...' + this.walletsToSearch[1].slice(-6) }},
-            </div>
-            <div style="border-bottom: solid 0.5px orange; border-radius: 9px; padding-bottom: 4px;"
-              v-if="walletsToSearch.length > 2">
-              {{ walletsToSearch && this.walletsToSearch[2].slice(0, 6) + '...' + this.walletsToSearch[2].slice(-6) }},
-            </div>
-            <div class="flex flex-center q-py-sm" v-if="walletsToSearch.length > 3">
-              ... + {{ this.walletsToSearch.length - 3 }} wallets
-            </div>
-          </div>
-
-        </div>
-        <q-spinner color="orange" size="2rem"></q-spinner>
-      </div>
     </div>
 
     <div v-if="!searchingFor" class="column q-gutter-y-lg flex items-center justify-center">
@@ -48,8 +13,8 @@
           <q-input bg-color="orange-6" style="min-width: 350px;" color="dark" outlined autofocus label="Wallet Search"
             v-model="walletToSearch">
           </q-input>
-          <q-btn @click="searchingFor = true" :disable="walletToSearch == ''" size="lg" color="orange" flat label="search"
-            style="border-radius: 9px;">
+          <q-btn :to="`/track/${walletToSearch}`" :disable="walletToSearch == ''" size="lg" color="orange" flat
+            label="search" style="border-radius: 9px;">
           </q-btn>
         </div>
 
@@ -68,10 +33,10 @@
                   Wallets
                 </div>
                 <div
-                  style="max-height: 105px; overflow-y: scroll; border: 0.5px solid rgba(195, 134, 22, 0.425); border-radius: 9px;"
+                  style="max-height: 105px; overflow-y: scroll; border: 0.5px solid rgba(195, 134, 22, 0.425); border-radius: 3px;"
                   class="q-pa-sm">
                   <div style="height: max-content;" class="column flex justify-center items-center">
-                    <q-chip clickable :label="wallet" style="font-size: 1rem; font-weight: 400;" color="orange"
+                    <q-chip square clickable :label="wallet" style="font-size: 1rem; font-weight: 400;" color="orange"
                       text-color="dark" icon="delete" v-for="(wallet, index) in walletsToSearch" :key="index"
                       class="flex justify-center q-pa-sm items-center flex-center col">
                     </q-chip>
@@ -89,8 +54,8 @@
           <q-btn :disable="multiWalet.length < 10" @click="addWalletOnGroup(multiWalet)" size="lg" color="orange" flat
             icon="add" style="border-radius: 9px;">
           </q-btn>
-          <q-btn v-if="walletsToSearch.length > 2" @click="searchingFor = true" size="lg" color="orange" flat
-            label="Search" style="border-radius: 9px;">
+          <q-btn v-if="walletsToSearch.length >= 2" :to="`/track/${walletsToSearch.toString()}`" size="lg" color="orange"
+            flat label="Search" style="border-radius: 9px;">
           </q-btn>
         </div>
 
@@ -99,34 +64,37 @@
         Select Your type of Track
       </div>
       <div class="row q-gutter-x-lg items-center q-mb-lg">
-        <q-btn v-if="trackType != 'single'" @click="trackType = 'single' && (this.tutorials = false)" style=" border-radius: 9px;" icon="search" flat
-          color="orange-5" size="xl" class="">
+        <q-btn v-if="trackType != 'single'" @click="(trackType = 'single') && (this.tutorials = false)"
+          style=" border-radius: 9px;" icon="search" flat color="orange-5" size="xl" class="">
           <q-tooltip v-if="tutorials" class="bg-transparent items-center text-orange-5 text-bold text-h6">
-              <video width="720" height="440" autoplay loop muted>
-                <source type="video/mp4" src="https://cdn.discordapp.com/attachments/459557016042471454/1147370803281797160/2023-09-01_23-54-56.mp4">
-              </video>
+            <video width="720" height="440" autoplay loop muted>
+              <source type="video/mp4"
+                src="https://cdn.discordapp.com/attachments/459557016042471454/1147370803281797160/2023-09-01_23-54-56.mp4">
+            </video>
           </q-tooltip>
           <q-tooltip v-else class="bg-dark items-center text-orange-5 text-bold text-h6">
             Single Wallet Search
           </q-tooltip>
         </q-btn>
-        <q-btn v-if="trackType != 'walletConnect'" @click="trackType = 'walletConnect' && (this.tutorials = false)" style=" border-radius: 9px;"
-          icon="wallet" flat color="orange-5" size="xl" class="">
+        <q-btn v-if="trackType != 'walletConnect'" @click="(trackType = 'walletConnect') && (this.tutorials = false)"
+          style=" border-radius: 9px;" icon="wallet" flat color="orange-5" size="xl" class="">
           <q-tooltip v-if="tutorials" class="bg-transparent items-center text-orange-5 text-bold text-h6">
-              <video width="720" height="440" autoplay loop muted>
-                <source type="video/mp4" src="https://cdn.discordapp.com/attachments/459557016042471454/1147372312493031434/2023-09-01_23-55-16.mp4">
-              </video>
+            <video width="720" height="440" autoplay loop muted>
+              <source type="video/mp4"
+                src="https://cdn.discordapp.com/attachments/459557016042471454/1147372312493031434/2023-09-01_23-55-16.mp4">
+            </video>
           </q-tooltip>
           <q-tooltip v-else class="bg-dark items-center text-orange-5 text-bold text-h6">
             Connect your wallet to see
           </q-tooltip>
         </q-btn>
-        <q-btn v-if="trackType != 'multi'" @click="trackType = 'multi' && (this.tutorials = false)" style=" border-radius: 9px;" icon="filter_2"
-          icon-right="add" flat color="orange-5" size="xl" class="">
+        <q-btn v-if="trackType != 'multi'" @click="(trackType = 'multi') && (this.tutorials = false)"
+          style=" border-radius: 9px;" icon="filter_2" icon-right="add" flat color="orange-5" size="xl" class="">
           <q-tooltip v-if="tutorials" class="bg-transparent items-center text-orange-5 text-bold text-h6">
-              <video width="720" height="440" autoplay loop muted>
-                <source type="video/mp4" src="https://cdn.discordapp.com/attachments/459557016042471454/1147372533742579802/2023-09-01_23-55-44.mp4">
-              </video>
+            <video width="720" height="440" autoplay loop muted>
+              <source type="video/mp4"
+                src="https://cdn.discordapp.com/attachments/459557016042471454/1147372533742579802/2023-09-01_23-55-44.mp4">
+            </video>
           </q-tooltip>
           <q-tooltip v-else class="bg-dark items-center text-orange-5 text-bold text-h6">
             Search a group of wallets
@@ -141,7 +109,7 @@
         <q-card-section style="min-height: 33vh;" class="full-height justify-center flex flex-center items-center">
           <div class="column full-height q-gutter-y-sm justify-center full-width items-center">
             <div v-if="unisatInstalled" class="full-width flex ">
-              <q-btn class="full-width q-py-lg justify-center items-center " color="dark"
+              <q-btn @click="getUnisatWalletAddress" class="full-width q-py-lg justify-center items-center " color="dark"
                 style="border: solid 0.5px orange; border-radius: 13px;">
                 <div class="row q-gutter-x-sm items-center flex">
                   <div class="">
@@ -234,6 +202,7 @@ export default defineComponent({
               this.xverseWalletAddressOrdinals = ordinalsAddressObj.address;
               this.walletToSearch = ordinalsAddressObj.address;
               this.searchingFor = true
+              this.$router.push('/track/' + this.walletToSearch)
             } else {
               console.error("Address with purpose 'ordinals' not found!");
             }
@@ -254,6 +223,16 @@ export default defineComponent({
 
       } catch (e) {
         console.error(e);
+      }
+    },
+    async getUnisatWalletAddress() {
+      try {
+        let accounts = await window.unisat.requestAccounts();
+        console.log('connect success', accounts);
+        this.walletToSearch = accounts;
+        this.$router.push('/track/' + this.walletToSearch)
+      } catch (e) {
+        console.log('connect failed');
       }
     }
 

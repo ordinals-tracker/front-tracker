@@ -1,14 +1,18 @@
 <template>
-  <q-layout view="">
-    <!-- <q-header class="bg-orange-6">
-      <q-toolbar>
-        <q-toolbar-title class="text-bold text-dark">
-          Ordinals Tracker
+  <q-layout class="" view="llF hhF ">
+    <q-header class="justify-center flex items-center" :class="this.$route.path != '/' ? 'bg-btc': 'bg-dark'">
+      <q-toolbar style="max-width: 80vw;" class="flex ">
+        <q-toolbar-title class="text-bold  text-h5 text-orange">
+         <div class="q-px-md">
+           Ordinals Tax Rep
+         </div>
         </q-toolbar-title>
 
-        <div></div>
+        <div v-if="this.$route.path != '/'" class="q-px-sm">
+          <q-btn to="/" style="border-radius: 9px;" icon="search" icon-right="add" color="orange" flat label="New Track"></q-btn>
+        </div>
       </q-toolbar>
-    </q-header> -->
+    </q-header>
 
 
     <q-page-container >
@@ -35,3 +39,14 @@ export default defineComponent({
   }
 })
 </script>
+
+<style>
+.bg-btc {
+  background-color: #4D4D4D;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+</style>
