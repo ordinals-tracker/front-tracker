@@ -6,7 +6,7 @@
         <div class="text-h3 col q-pt-lg q-pb-md flex text-bold">
           Ordinals Overall Stats
         </div>
-        <div class="text-h6 col flex q-mt-sm  text-grey-5 text-bold">
+        <div class="text-h6 col flex q-mt-lg  text-grey-5 text-bold">
           Wallet: {{ this.walletInserted && this.walletInserted }}
         </div>
       </div>
@@ -65,10 +65,10 @@
                 </div>
                 <div class="flex column q-gutter-y-sm items-center">
                   <div class="text-bold text-h6">
-                    Total Count
+                    PNL
                   </div>
                   <div class="text-bold text-h6">
-                    {{ this.overallCount }}
+                    {{ parseFloat(this.overallPnl).toFixed(4) + ' %' }}
                   </div>
                 </div>
               </div>
@@ -141,7 +141,7 @@
                 <q-btn @click="sectionGrid = 'assets'"
                   :class="sectionGrid == 'assets' ? 'text-h6 text-bold text-orange' : 'text-h6 text-bold'"
                   :style="sectionGrid == 'assets' ? 'border-bottom: solid 0.5px #f7941a63; border-radius: 2px;' : 'border-radius: 9px'"
-                  flat label="Traded Assets" no-caps no-wrap dense>
+                  flat label="Traded Collections" no-caps no-wrap dense>
                 </q-btn>
               </div>
               <div class="">
@@ -149,6 +149,11 @@
                   :class="sectionGrid == 'activities' ? 'text-h6 text-bold text-orange' : 'text-h6 text-bold'"
                   :style="sectionGrid == 'activities' ? 'border-bottom: solid 0.5px #f7941a63; border-radius: 2px;' : 'border-radius: 9px'"
                   flat label="Activities" no-caps no-wrap dense>
+                </q-btn>
+              </div>
+              <div v-if="sectionGrid == 'activities'" class="flex col justify-end items-center">
+                <q-btn label=".CSV" dense icon="download" flat color="orange" size="md" @click="downloadCSV" no-caps
+                  no-wrap>
                 </q-btn>
               </div>
             </div>
@@ -190,57 +195,71 @@
                 </div>
               </div>
             </div>
-            <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center "
-              style="height: 80vh; overflow-y: scroll" v-if="sectionGrid == 'activities'">
-              <div style="height: max-content;" class="flex full-width justify-center q-px-sm column">
-                <div v-for="(trade, index) in dataTrades" :key="index">
-                  <div style="border: solid 0.5px orange; border-radius: 3px; height: 80px;"
-                    class="full-width arrows-action cursor-pointer flex q-my-xs items-center justify-center">
-                    <div class="full-width justify-between row items-center q-px-sm">
-                      <div class="justify-start text-bold flex ">
-                        {{ trade.name }}
-                      </div>
-                      <div class="justify-end items-right text-right column flex ">
-                        <div class="flex row items-center q-gutter-x-xs text-right items-end justify-end"
-                          v-if="trade.buy.length > 0">
-                          <div>
-                            <span class="text-bold text-cyan-2">Bought</span> for: <span class="text-bold">
-                              {{ trade.buy[0].price }}
-                            </span>
-                          </div>
-                          <div>
-                            <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
-                          </div>
-                        </div>
-                        <div class="flex row items-center q-gutter-x-xs text-right items-end justify-end"
-                          v-if="trade.mint.length > 0">
-                          <div>
-                            <span class="text-bold text-cyan-2">Minted</span> for: <span class="text-bold">
-                              {{ trade.mint[0].price }}
-                            </span>
-                          </div>
-                          <div>
-                            <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
-                          </div>
-                        </div>
-                        <div class="flex row items-center q-gutter-x-xs text-right items-end justify-end"
-                          v-if="trade.sell.length > 0">
-                          <div>
-                            <span class="text-bold text-orange-2">+ Sold</span> for: <span class="text-bold">
-                              {{ trade.sell[0].price }}
-                            </span>
-                          </div>
-                          <div>
-                            <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
-                          </div>
-                        </div>
+            <q-table v-model:pagination="pagination" :rows-per-page-options="[0]" dark
+              class="text-white custom-table text-bold bg-btc" v-if="sectionGrid == 'activities'" style="height: 400px"
+              flat :rows="dataTrades" :columns="tableColumns" color="black" row-key="index" hide-bottom>
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="name" :props="props">
+                    <div class="row items-center q-gutter-x-sm">
+                      <q-img
+                        v-if="props.row.inscription_contentType != 'text/html;charset=utf-8' && props.row.inscription_contentType != 'text/html'"
+                        :src="`https://ordinals.com/content/${props.row.id}`" style="width: 30px;"></q-img>
+                      <iframe
+                        v-if="props.row.inscription_contentType == 'text/html;charset=utf-8' || props.row.inscription_contentType == 'text/html'"
+                        :src="`https://ordinals.com/content/${props.row.id}`" width="30" height="30"></iframe>
+                      <div>
+                        <span @click="openInNewTab(`https://magiceden.io/ordinals/item-details/${props.row.id}`)"
+                          class="cursor-pointer"> {{ props.row.name != '' ? props.row.name : props.row.collection
+                          }}</span>
+
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </q-td>
+                  <q-td key="buy" :props="props">
+                    <div v-if="props.row.buy.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.buy[0].tx}`)"
+                          class="text-bold cursor-pointer text-red-5">{{
+                            '- ' + props.row.buy[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.buy[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                      <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
+                    </div>
+                  </q-td>
+                  <q-td key="mint" :props="props">
+                    <div v-if="props.row.mint.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.mint[0].tx}`)"
+                          class="text-bold cursor-pointer text-cyan-5">{{
+                            '- ' + props.row.mint[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.mint[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                      <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
+                    </div>
+                  </q-td>
+                  <q-td key="sell" :props="props">
+                    <div v-if="props.row.sell.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.sell[0].tx}`)"
+                          class="text-bold cursor-pointer text-green-5">{{
+                            '+ ' + props.row.sell[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.sell[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                      <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
+                    </div>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
 
-              </div>
-            </div>
+
             <div>
 
             </div>
@@ -277,32 +296,43 @@
               </div>
             </div>
             <div class="col flex q-gutter-x-md row justify-end">
+              <div>
+                <q-btn target="_blank" :href="`https://magiceden.io/ordinals/marketplace/${collectionToSee.symbol}`" dense
+                  round size="sm" flat>
+                  <q-avatar size="xs" round>
+                    <q-img src="https://pbs.twimg.com/profile_images/1668003671626350592/LvmVzo2C_400x400.jpg"></q-img>
+                  </q-avatar>
+                  <q-tooltip>
+                    View on ME
+                  </q-tooltip>
+                </q-btn>
+              </div>
               <div v-if="this.collectionToSee.discordLink != ''">
-                <q-btn :href="this.collectionToSee.discordLink" target="_blank" round icon="fab fa-discord"
-                  color="orange-5" dense flat size="sm">
+                <q-btn :href="this.collectionToSee.discordLink" target="_blank" round icon="fab fa-discord" color=""
+                  style="color: #FE5A21;" dense flat size="sm">
                   <q-tooltip>
                     Discord
                   </q-tooltip>
                 </q-btn>
               </div>
               <div v-if="this.collectionToSee.twitterLink != ''">
-                <q-btn :href="this.collectionToSee.twitterLink" target="_blank" round icon="fab fa-twitter"
-                  color="orange-5" dense flat size="sm">
+                <q-btn :href="this.collectionToSee.twitterLink" target="_blank" round icon="fab fa-twitter" color=""
+                  style="color: #FE5A21;" dense flat size="sm">
                   <q-tooltip>
                     Twitter
                   </q-tooltip>
                 </q-btn>
               </div>
               <div v-if="this.collectionToSee.websiteLink != ''">
-                <q-btn :href="this.collectionToSee.websiteLink" target="_blank" round icon="language" color="orange-5"
-                  dense flat size="sm">
+                <q-btn :href="this.collectionToSee.websiteLink" target="_blank" round icon="language"
+                  style="color: #FE5A21;" color="" dense flat size="sm">
                   <q-tooltip>
                     Project website
                   </q-tooltip>
                 </q-btn>
               </div>
               <div>
-                <q-btn round icon="fas fa-info" color="orange-5" dense flat size="sm">
+                <q-btn @click="openAboutCollection" style="color: #FE5A21;" round icon="fas fa-info" dense flat size="sm">
                   <q-tooltip>
                     About Collection
                   </q-tooltip>
@@ -316,24 +346,31 @@
                 Activities
               </div>
               <div class="flex justify-end items-center ">
-                <div v-if="collectionToSee.symbol"
-                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
-                  class="flex q-pa-md q-px-lg column text-center q-gutter-y-sm">
-                  <div style="font-size: 1.5rem; font-weight: 1000;">
-                    {{ collectionToSee.symbol }}
-                  </div>
-                  <div>
-                    Symbol
-                  </div>
-                </div>
-                <div v-if="collectionToSee.event"
+                <div v-if="collectionToSee.floorPrice"
                   style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
                   class="flex q-pa-md text-center column q-gutter-y-sm">
-                  <div style="font-size: 1.5rem; font-weight: 1000;">
-                    {{ collectionToSee.event.length }}
+                  <div class="row flex items-center">
+                    <div style="font-size: 1.5rem; font-weight: 1000;">
+                      {{ collectionToSee.totalVolume }}
+                    </div>
+                    <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
                   </div>
                   <div>
-                    Your Interactions
+                    Total Volume
+                  </div>
+                </div>
+                <div v-if="collectionToSee.floorPrice"
+                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+                  class="flex q-pa-md text-center column q-gutter-y-sm">
+                  <div class="flex row items-center">
+                    <div style="font-size: 1.5rem; font-weight: 1000;">
+                      {{ collectionToSee.floorPrice }}
+                    </div>
+                    <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
+
+                  </div>
+                  <div>
+                    Floor Price
                   </div>
                 </div>
                 <div v-if="collectionToSee.supply"
@@ -344,6 +381,16 @@
                   </div>
                   <div>
                     Total Supply
+                  </div>
+                </div>
+                <div v-if="collectionToSee.event"
+                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+                  class="flex q-pa-md text-center column q-gutter-y-sm">
+                  <div style="font-size: 1.5rem; font-weight: 1000;">
+                    {{ collectionToSee.event.length }}
+                  </div>
+                  <div>
+                    Interactions
                   </div>
                 </div>
               </div>
@@ -378,18 +425,19 @@
                       <div :class="`justify-end q-px-sm column flex items-end text-right q-gutter-y-sm`">
                         <div
                           :class="`
-                          text-bold text-right q-px-sm items-end flex ${event.kind == 'create' || event.kind == 'mint' ? 'text-blue-2' : ''} ${event.kind == 'sell' ? 'text-orange-2' : ''} ${event.kind == 'recive' ? 'text-cyan-5' : ''}  ${event.kind == 'buy' ? 'text-cyan-2' : ''} ${event.kind == 'send' ? 'text-cyan-5' : ''}`">
+                          text-bold text-right q-px-sm items-end flex ${event.kind == 'create' || event.kind == 'Mint' ? 'text-blue-2' : ''} ${event.kind == 'Sell' ? 'text-orange-2' : ''} ${event.kind == 'Receive' ? 'text-cyan-5' : ''}  ${event.kind == 'Buy' ? 'text-cyan-2' : ''} ${event.kind == 'send' ? 'text-cyan-5' : ''}`">
                           {{ event.kind == 'create' ? 'MINTED' : '' }}
-                          {{ event.kind == 'mint' ? 'MINTED' : '' }}
-                          {{ event.kind == 'recive' ? 'RECIVE' : '' }}
-                          {{ event.kind == 'sell' ? '+ SOLD' : '' }}
-                          {{ event.kind == 'buy' ? 'BOUGHT' : '' }}
-                          {{ event.kind == 'send' ? 'SEND' : '' }}
+                          {{ event.kind == 'Mint' ? 'MINTED' : '' }}
+                          {{ event.kind == 'Receive' ? 'RECEIVE' : '' }}
+                          {{ event.kind == 'Sell' ? 'SOLD' : '' }}
+                          {{ event.kind == 'Buy' ? 'BOUGHT' : '' }}
+                          {{ event.kind == 'Send' ? 'SEND' : '' }}
                         </div>
                         <div v-if="event.listedPrice > 0" class="row flex items-center q-gutter-x-xs">
-                          <div>
-                            {{ event.listedPrice ? event.listedPrice > 0 ? (parseFloat(event.listedPrice) /
-                              100000000).toFixed(6) : '' : '' }}
+                          <div :class="event.kind == 'Sell' ? 'text-green-5' : 'text-red-5'">
+                            {{ event.kind == 'Sell' ? '+ ' : '- ' }} {{ event.listedPrice ? event.listedPrice > 0 ?
+                              (parseFloat(event.listedPrice) /
+                                100000000).toFixed(6) : '' : '' }}
                           </div>
                           <q-icon color="orange" name="currency_bitcoin" dense size="0.7rem"></q-icon>
                         </div>
@@ -403,11 +451,20 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="dialogAboutCollection">
+      <q-card style="width: fit-content; height: fit-content;" class="bg-dark q-pa-lg">
+        <q-card-section>
+          <div style="width: 80%;" class="flex justify-center text-h6 text-bold text-white">
+            {{ collectionToSee.description }}
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
-import { defineAsyncComponent, defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent, ref } from 'vue'
 import axios from 'axios'
 // import Chart from 'src/components/charts/line/ApexLine.vue'
 const ApexLine = defineAsyncComponent(() =>
@@ -422,6 +479,12 @@ export default defineComponent({
   data() {
     return {
       tutorials: false,
+      tableColumns: [
+        { name: 'name', required: true, label: 'Trade Name', align: 'left', field: 'name' },
+        { name: 'buy', required: true, label: 'Bought', align: 'left', field: 'buy' },
+        { name: 'mint', required: true, label: 'Minted', align: 'left', field: 'mint' },
+        { name: 'sell', required: true, label: 'Sold', align: 'left', field: 'sell' }
+      ],
       loadingData: true,
       loadingTexts: ['Scrapping Sales', 'Scrapping Mints', 'Analyzing Data', 'Tracking Wallet', 'Searching Purchases', 'Calculating...', 'Scrapping Real Time Data...'],
       currentTextIndex: 0,
@@ -432,17 +495,64 @@ export default defineComponent({
       overallMint: null,
       overallSell: null,
       overallCount: null,
+      overallPnl: null,
       singleCollectionDialog: false,
+      dialogAboutCollection: false,
       collectionToSee: [],
       sectionGrid: 'assets',
       walletInserted: this.$route.params.id.toString().slice(0, 6) + '...' + this.$route.params.id.toString().slice(-6),
     }
+  },
+  setup() {
+    pagination: ref({
+      rowsPerPage: 0
+    })
   },
   components: {
     ApexLine,
     ColumnChart
   },
   methods: {
+    openInNewTab(url) {
+      window.open(url, '_blank');
+    },
+    convertTimestampToDate(timestamp) {
+      const date = new Date(timestamp * 1000);  // multiplicamos por 1000 porque o JavaScript usa milissegundos
+      return date.toLocaleDateString();  // Você pode ajustar o formato como desejar
+    },
+    downloadCSV() {
+      const csvRows = [];
+      // Header
+      const headers = this.tableColumns.map(col => col.label);
+      csvRows.push(headers.join(';'));
+
+      // Rows
+      this.dataTrades.forEach(row => {
+        const values = this.tableColumns.map(col => {
+          const val = row[col.name];
+          if (Array.isArray(val) && val.length > 0) {
+            return val[0].price || '';
+          }
+          return val || '';  // convertir undefined/null para string vazia
+        });
+        csvRows.push(values.join(';'));
+      });
+
+      const csvString = csvRows.join('\r\n');
+      const blob = new Blob([csvString], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('hidden', '');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'ordinals_trade_report.csv');
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    },
+    openAboutCollection() {
+      this.dialogAboutCollection = true
+    },
     openCollectionInfo(collection) {
       this.singleCollectionDialog = true
       this.collectionToSee = collection
@@ -460,6 +570,7 @@ export default defineComponent({
         this.overallSell = response.data['ordinals-track'].sell
         this.overallMint = response.data['ordinals-track'].mint
         this.overallCount = response.data['ordinals-track'].count
+        this.overallPnl = response.data['ordinals-track'].pnl
         this.dataTrades = response.data['ordinals-track'].trades
         this.dataCollections = response.data['ordinals-track'].collections
         this.loadingData = false
@@ -498,6 +609,7 @@ export default defineComponent({
 .bg-btc {
   background-color: #252424;
 }
+
 
 /* Estilo padrão */
 .hover-effect {
@@ -542,6 +654,30 @@ export default defineComponent({
   transition: transform 0.5s, opacity 0.5s;
   transform: translateY(0);
   opacity: 1;
+}
+
+.custom-table .q-table__top {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: inherit;
+  /* para manter a cor de fundo */
+}
+
+/* .custom-table .q-tr {
+    border-bottom: 1px solid rgb(235, 235, 235);
+} */
+
+/* Opcional: Se você quiser remover a borda da última linha para evitar duplicatas, use o seguinte: */
+.custom-table .q-tr:last-child {
+  border-bottom: none;
+}
+
+
+.custom-table .q-table__viewport {
+  max-height: calc(100% - 52px);
+  /* 52px é uma estimativa para a altura do cabeçalho. Ajuste conforme necessário */
 }
 
 .transition-out {
