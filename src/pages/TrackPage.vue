@@ -1,8 +1,8 @@
 <template>
-  <q-page style="min-width: 100vw; height: max-content;" class="flex bg-btc flex-center text-white">
+  <q-page style="min-width: 100vw; max-width: 100vw; height: max-content;" class="flex bg-btc flex-center text-white">
     <div style="max-width: 80vw; position: relative;" class="flex-center full-width q-pt-lg q-pb-md flex">
       <div style="margin-top: -30px; height: 15vh;"
-        class="q-py-lg full-width justify-start column flex items-start q-px-xl q-py-md ">
+        class="q-py-lg gt-sm full-width justify-start column flex items-start q-px-xl q-py-md ">
         <div class="text-h3 col q-pt-lg q-pb-md flex text-bold">
           Ordinals Overall Stats
         </div>
@@ -10,8 +10,18 @@
           Wallet: {{ this.walletInserted && this.walletInserted }}
         </div>
       </div>
+      <div style="margin-top: -30px; ;"
+        class="q-py-lg q-px-lg lt-md full-width justify-start flex column items-start q-py-md ">
+        <div class=" q-pt-lg  flex text-bold">
+          Ordinals Overall Stats
+        </div>
+        <div class=" flex  text-grey-5 ">
+          Wallet: {{ this.walletInserted && this.walletInserted }}
+        </div>
+      </div>
       <!-- GRAPHS STATS -->
-      <div style="height: fit-content;" class="full-width q-py-lg row justify-between items-center q-gutter-x-md">
+      <!-- DESKTOP -->
+      <div style="height: fit-content;" class="full-width gt-sm q-py-lg row justify-between items-center q-gutter-x-md">
         <div style="width: 70%; height: 100%;" class="col justify-center flex items-center">
           <div style="border-radius: 3px;" class="full-width items-center q-py-md q-px-md justify-center full-height">
             <column-chart class="justify-center items-center flex q-mr-md" />
@@ -26,8 +36,8 @@
                 Performance.
               </div>
             </div>
-            <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
-              <div v-if="!loadingData" class="justify-around flex-center items-center flex row full-width">
+            <div class="full-width q-pt-lg q-pb-md justify-center q-px-md flex-center items-center">
+              <div v-if="!loadingData" class="justify-between flex-center items-center flex row full-width">
                 <div class="flex column q-gutter-y-sm items-center">
                   <div class="text-bold text-h6">
                     Total Minted
@@ -85,6 +95,133 @@
                 Holdings.
               </div>
             </div>
+            <div class="justify-between  full-width flex items-center q-px-lg q-py-sm">
+              <div class="justify-start items-center flex">
+                <div>
+                  Collection
+                </div>
+              </div>
+              <div class="flex justify-end q-gutter-x-lg items-center ">
+                <div>
+                  Floorprice
+                </div>
+                <div>
+                  Amount
+                </div>
+              </div>
+            </div>
+            <div style="height: 300px; overflow-y: scroll;"
+              class="full-width q-pt-sm q-pb-md q-px-md justify-center flex-center items-center">
+              <div style="height: max-content;" v-if="!loadingData"
+                class="justify-start column flex q-gutter-y-md flex-center items-center flex row full-width">
+                <div class="full-width" v-for="(holding, index) in dataHoldings" :key="index">
+                  <div @click="openCollectionHolding(holding.inscriptions, holding)"
+                    class="full-width arrows-action cursor-pointer q-px-sm q-py-sm justify-between flex items-start">
+                    <div class=" flex items-center q-gutter-x-sm justify-start">
+                      <div class="">
+                        <q-img style="width: 30px;" :src="holding.imageURI"></q-img>
+                      </div>
+                      <div class="">
+                        {{ holding.name }}
+                      </div>
+                    </div>
+                    <div class=" flex justify-end q-gutter-x-xl items-center ">
+                      <div class="text-bold q-gutter-x-sm flex text-center flex-center items-center">
+                        <q-icon name="currency_bitcoin" size="0.75rem" color="orange"></q-icon>
+                        <div>{{ parseFloat(holding.floorPrice).toFixed(5) }}</div>
+                      </div>
+                      <div class="text-bold">
+                        {{ parseFloat(holding.inscriptions.length) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="full-width flex justify-center items-center q-py-md" v-else>
+                <q-spinner size="lg" color="orange"></q-spinner>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- GRAPHS STATS -->
+      <!-- MOBILE -->
+      <div style="height: fit-content;"
+        class="full-width lt-md q-py-lg column justify-between items-center q-gutter-y-md">
+        <div style="width: 90%; height: 70%;" class=" flex-center justify-start flex items-start">
+          <div style="border-radius: 3px;" class="full-width items-start flex-center q-py-md justify-start">
+            <column-chart style="width: 100%" class="justify-center items-center flex" />
+          </div>
+        </div>
+        <div style="width: 100vw; height: 90%;"
+          class="col full-width column justify-center q-gutter-y-md flex  items-center">
+          <div style="height: 50%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
+            class="col flex column">
+            <div style="border-bottom: solid 0.5px #f7941a63;"
+              class="flex q-px-md q-py-md justify-start items-center full-width">
+              <div class="text-h6 text-bold text-white">
+                Performance.
+              </div>
+            </div>
+            <div class="full-width q-pt-md q-pb-md q-px-md justify-center flex-center items-center">
+              <div v-if="!loadingData" class="justify-around flex-center q-gutter-sm items-center flex row full-width">
+                <div class="flex column q-gutter-y-sm items-center">
+                  <div class="text-bold ">
+                    Minted
+                  </div>
+                  <div class="text-bold flex row items-center ">
+                    <div>
+                      {{ parseFloat(this.overallMint).toFixed(7) }}
+                    </div>
+                    <q-icon class="text-bold" color="orange-5" size="xs" name="currency_bitcoin"></q-icon>
+                  </div>
+                </div>
+                <div class="flex column q-gutter-y-sm items-center">
+                  <div class="text-bold ">
+                    Bought
+                  </div>
+                  <div class="text-bold flex row items-center ">
+                    <div>
+                      {{ parseFloat(this.overallBuy).toFixed(7) }}
+                    </div>
+                    <q-icon class="text-bold" color="orange-5" size="xs" name="currency_bitcoin"></q-icon>
+                  </div>
+
+                </div>
+                <div class="flex column q-gutter-y-sm items-center">
+                  <div class="text-bold ">
+                    Sold
+                  </div>
+                  <div class="text-bold flex row items-center ">
+                    <div>
+                      {{ parseFloat(this.overallSell).toFixed(7) }}
+                    </div>
+                    <q-icon class="text-bold" color="orange-5" size="xs" name="currency_bitcoin"></q-icon>
+                  </div>
+
+                </div>
+                <div class="flex column q-gutter-y-sm items-center">
+                  <div class="text-bold ">
+                    PNL
+                  </div>
+                  <div class="text-bold ">
+                    {{ parseFloat(this.overallPnl).toFixed(4) + ' %' }}
+                  </div>
+                </div>
+              </div>
+              <div class="full-width flex justify-center items-center q-py-md" v-else>
+                <q-spinner size="lg" color="orange"></q-spinner>
+              </div>
+            </div>
+          </div>
+          <div style="height: 50%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
+            class="col flex column">
+            <div style="border-bottom: solid 0.5px #f7941a63;"
+              class="flex q-px-md q-py-md justify-start items-center full-width">
+              <div class=" text-bold text-white">
+                Holdings.
+              </div>
+            </div>
             <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
               <div v-if="!loadingData" class="justify-around flex-center items-center flex row full-width">
                 <div class="flex column q-gutter-y-sm items-center">
@@ -131,7 +268,7 @@
       </div>
       <!-- GRID COLLECTIONS -->
       <div v-if="!loadingData" style="height: fit-content;"
-        class="full-width q-py-lg row justify-between items-center q-gutter-x-md">
+        class="full-width gt-sm q-py-lg row justify-between items-center q-gutter-x-md">
         <div style="width: 100%; height: 100%;" class="col column justify-center q-gutter-y-md flex  items-center">
           <div style="height: 100%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
             class="col flex column">
@@ -157,17 +294,17 @@
                 </q-btn>
               </div>
             </div>
-            <div style="height: 80vh; overflow-y: scroll;" v-if="sectionGrid == 'assets'"
-              class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
-              <div style="height: max-content;" class="justify-center items-center flex row full-width">
-                <div @click="openCollectionInfo(collection)"
-                  class="flex q-mx-md cursor-pointer hover-effect q-my-md flex-wrap column items-center"
-                  v-for="(collection, index) in dataCollections" :key="index">
+            <div style="height: 85vh; overflow-y: scroll;" v-if="sectionGrid == 'assets'"
+              class="full-width q-pt-xl q-pb-md q-px-md">
+              <div style="height: max-content;" class="justify-start flex-wrap items-start q-gutter-md flex full-width">
+                <div style="width: 13%;" @click="openCollectionInfo(collection)"
+                  class="flex cursor-pointer hover-effect q-my-md column" v-for="(collection, index) in dataCollections"
+                  :key="index">
                   <q-img :src="collection.imageURI"
-                    style="max-width: 200px; max-height: 200px; height: 200px; width: 200px;" class="">
+                    style="max-width: 100%; max-height: 200px; height: 200px; width: 200px;" class="">
 
                   </q-img>
-                  <div class="" style="max-width: 200px; width: 200px; height: 140px;border-radius: 2px;">
+                  <div class="" style="max-width: 100%; width: 200px; height: 140px;border-radius: 2px;">
                     <div class="full-width q-py-sm column flex">
                       <div class="q-px-md text-subtitle2 text-bold">
                         {{ collection.name }}
@@ -266,6 +403,135 @@
           </div>
         </div>
       </div>
+      <!-- GRID MOBILE -->
+      <div v-if="!loadingData" style="height: fit-content; width: 100vw;"
+        class="lt-md q-py-lg row justify-between items-center q-gutter-x-md">
+        <div style="width: 100%; height: 100%;" class="col column justify-center q-gutter-y-md flex  items-center">
+          <div style="height: 100%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
+            class="col flex column">
+            <div style="border-bottom: solid 0.5px #f7941a63;"
+              class="flex q-px-md row q-gutter-x-xs q-py-md justify-start items-center full-width">
+              <div class="">
+                <q-btn @click="sectionGrid = 'assets'" :class="sectionGrid == 'assets' ? ' text-bold text-orange' : ''"
+                  :style="sectionGrid == 'assets' ? 'border-bottom: solid 0.5px #f7941a63; border-radius: 2px;' : 'border-radius: 9px'"
+                  flat label="Traded Collections" no-caps no-wrap dense>
+                </q-btn>
+              </div>
+              <div class="">
+                <q-btn @click="sectionGrid = 'activities'"
+                  :class="sectionGrid == 'activities' ? 'text-bold text-orange' : ''"
+                  :style="sectionGrid == 'activities' ? 'border-bottom: solid 0.5px #f7941a63; border-radius: 2px;' : 'border-radius: 9px'"
+                  flat label="Activities" no-caps no-wrap dense>
+                </q-btn>
+              </div>
+              <div v-if="sectionGrid == 'activities'" class="flex col justify-end items-center">
+                <q-btn label=".CSV" dense icon="download" flat color="orange" size="md" @click="downloadCSV" no-caps
+                  no-wrap>
+                </q-btn>
+              </div>
+            </div>
+            <div style="height: 80vh; overflow-y: scroll;" v-if="sectionGrid == 'assets'"
+              class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
+              <div style="height: max-content;" class="justify-center items-center flex row full-width">
+                <div @click="openCollectionInfo(collection)"
+                  class="flex q-mx-md cursor-pointer hover-effect q-my-md flex-wrap column items-center"
+                  v-for="(collection, index) in dataCollections" :key="index">
+                  <q-img :src="collection.imageURI"
+                    style="max-width: 200px; max-height: 200px; height: 200px; width: 200px;" class="">
+
+                  </q-img>
+                  <div class="" style="max-width: 200px; width: 200px; height: 140px;border-radius: 2px;">
+                    <div class="full-width q-py-sm column flex">
+                      <div class="q-px-md text-subtitle2 text-bold">
+                        {{ collection.name }}
+                      </div>
+                      <div class="q-px-md q-py-md full-width justify-between q-px-sm items-center row ">
+                        <div class="column flex q-gutter-y-sm">
+                          <div>
+                            Supply
+                          </div>
+                          <div class="text-bold">
+                            {{ collection.supply }}
+                          </div>
+                        </div>
+                        <div class="column flex q-gutter-y-sm">
+                          <div>
+                            Interactions
+                          </div>
+                          <div class="text-bold justify-end items-right flex">
+                            {{ collection.event.length }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <q-table v-model:pagination="pagination" :rows-per-page-options="[0]" dark
+              class="text-white custom-table text-bold bg-btc" v-if="sectionGrid == 'activities'" virtual-scroll
+              style="height: 400px" flat :rows="dataTrades" :columns="tableColumns" color="black" row-key="index"
+              hide-bottom>
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="name" :props="props">
+                    <div class="row items-center q-gutter-x-sm">
+                      <div style="font-size: 0.77rem;">
+                        <span @click="openInNewTab(`https://magiceden.io/ordinals/item-details/${props.row.id}`)"
+                          class="cursor-pointer"> {{ props.row.name != '' ? props.row.name.length > 6 ?
+                            props.row.name.slice(0, 6) + '...' : props.row.name : props.row.collection
+                          }}</span>
+
+                      </div>
+                    </div>
+                  </q-td>
+                  <q-td key="buy" :props="props">
+                    <div v-if="props.row.buy.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.buy[0].tx}`)"
+                          class="text-bold cursor-pointer text-red-5">{{
+                            '- ' + props.row.buy[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.buy[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                    </div>
+                  </q-td>
+                  <q-td key="mint" :props="props">
+                    <div v-if="props.row.mint.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.mint[0].tx}`)"
+                          class="text-bold cursor-pointer text-cyan-5">{{
+                            '- ' + props.row.mint[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.mint[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                    </div>
+                  </q-td>
+                  <q-td key="sell" :props="props">
+                    <div v-if="props.row.sell.length > 0" class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span @click="openInNewTab(`https://mempool.space/tx/${props.row.sell[0].tx}`)"
+                          class="text-bold cursor-pointer text-green-5">{{
+                            '+ ' + props.row.sell[0].price }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.sell[0].when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                    </div>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+
+
+            <div>
+
+            </div>
+          </div>
+        </div>
+      </div>
 
 
 
@@ -281,6 +547,54 @@
       </div>
     </div>
 
+    <q-dialog v-model="dialogHoldingCollection">
+      <q-card style="width: 44vw; height: 44vh;" class="bg-dark">
+        <q-card-section>
+          <div class="justify-between items-center flex q-py-sm">
+            <div class="justify-start text-white q-px-md q-py-md text-bold items-center flex ">
+              {{ this.collectiontoSeeHoldedStats.name }}
+            </div>
+            <div class="justify-end column q-gutter-x-xs text-white q-px-md q-py-md text-bold items-center flex ">
+              <div class="flex row items-center q-gutter-x-xs">
+                <div class="text-bold">
+                  {{ parseFloat(this.collectiontoSeeHoldedStats.holdingBalance) }}
+                </div>
+                <div>
+                  <q-icon name="currency_bitcoin" size="0.75rem" color="orange"></q-icon>
+                </div>
+              </div>
+              <div style="font-weight: 300;">
+                 Balance
+              </div>
+            </div>
+          </div>
+          <div style="height: 33vh; overflow-y: scroll;">
+            <div style="height: max-content;"
+              class="grid q-gutter-md full-width flex-wrap flex items-center justify-start full-width q-px-sm q-py-sm">
+              <div @click="openInNewTab(`https://ord.io/${item.inscriptionNumber}`)" style="width: 21%; height: fit-content; border: solid 0.5px orange;"
+                class="text-white grid-holding column flex q-gutter-y-none text-bold cursor-pointer items-start"
+                v-for="(item, index) in this.collectiontoSeeHolded" :key="index">
+                <q-img
+                  v-if="item.contentType != 'text/html' && item.contentType != 'text/html;charset=utf-8' && item.contentType != 'text/plain;charset=utf-8'"
+                  style="width: 100;" :src="item.contentURI"></q-img>
+                <iframe
+                  v-if="item.contentType == 'text/html;charset=utf-8' || item.contentType == 'text/html' || item.contentType == 'text/plain;charset=utf-8'"
+                  :src="item.contentURI" style="width: 100%; height: 100%;" width="100" height="100"></iframe>
+                <div class="items-start justify-start column flex q-py-xs q-px-sm"
+                  style="width: 100; height: fit-content;">
+                  <div>
+                    Inscription
+                  </div>
+                  <div>
+                    {{ item.inscriptionNumber }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="singleCollectionDialog">
       <q-card style="min-width: 65vw; min-height: fit-content;" class="bg-btc q-pb-md items-center text-white">
@@ -288,7 +602,7 @@
           <div style="border-bottom: orange 0.5px solid; width: 100%;"
             class="flex q-py-lg q-px-md row justfy-between items-center">
             <div class="col row items-center q-gutter-x-md text-bold text-h6 justify-start flex">
-              <div>
+              <div class="gt-sm">
                 <q-img style="width: 55px;" :src="collectionToSee.imageURI"></q-img>
               </div>
               <div>
@@ -331,26 +645,71 @@
                   </q-tooltip>
                 </q-btn>
               </div>
-              <div>
-                <q-btn @click="openAboutCollection" style="color: #FE5A21;" round icon="fas fa-info" dense flat size="sm">
-                  <q-tooltip>
-                    About Collection
-                  </q-tooltip>
-                </q-btn>
-              </div>
+
             </div>
           </div>
-          <div class="q-pt-xl q-pb-md full-width q-px-lg flex items-center justify-center">
-            <div class="justify-between items-center flex full-width q-py-md">
-              <div class="text-h5 text-bold">
-                Activities
+          <div class="q-pt-sm q-pb-md full-width q-px-sm flex items-center justify-center">
+            <div class="items-center gt-sm flex full-width q-py-md">
+              <div class="flex justify-between full-width q-gutter-md items-center ">
+                <div class="justify-start flex gt-sm items-center ">
+                  <div class="">
+                    Activities
+                  </div>
+                </div>
+                <div class="justify-end flex items-center ">
+                  <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.floorPrice"
+                    class="flex q-pa-md text-center column q-gutter-y-sm">
+                    <div class="row flex items-center">
+                      <div style="font-size: 0.8rem; font-weight: 1000;">
+                        {{ collectionToSee.totalVolume }}
+                      </div>
+                      <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
+                    </div>
+                    <div>
+                      Total Volume
+                    </div>
+                  </div>
+                  <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.floorPrice"
+                    class="flex q-pa-md text-center column q-gutter-y-sm">
+                    <div class="flex row items-center">
+                      <div style="font-size: 0.8rem; font-weight: 1000;">
+                        {{ collectionToSee.floorPrice }}
+                      </div>
+                      <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
+
+                    </div>
+                    <div>
+                      Floor Price
+                    </div>
+                  </div>
+                  <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.supply"
+                    class="flex q-pa-md column text-center q-gutter-y-sm">
+                    <div style="font-size: 0.8rem; font-weight: 1000;">
+                      {{ collectionToSee.supply }}
+                    </div>
+                    <div>
+                      Total Supply
+                    </div>
+                  </div>
+                  <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.event"
+                    class="flex q-pa-md text-center column q-gutter-y-sm">
+                    <div style="font-size: 0.8rem; font-weight: 1000;">
+                      {{ collectionToSee.event.length }}
+                    </div>
+                    <div>
+                      Interactions
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="flex justify-end items-center ">
-                <div v-if="collectionToSee.floorPrice"
-                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+            </div>
+
+            <div class="items-center lt-md flex full-width q-py-md">
+              <div class="justify-between q-gutter-md flex items-center ">
+                <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.floorPrice"
                   class="flex q-pa-md text-center column q-gutter-y-sm">
                   <div class="row flex items-center">
-                    <div style="font-size: 1.5rem; font-weight: 1000;">
+                    <div style="font-size: 0.8rem; font-weight: 1000;">
                       {{ collectionToSee.totalVolume }}
                     </div>
                     <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
@@ -359,11 +718,10 @@
                     Total Volume
                   </div>
                 </div>
-                <div v-if="collectionToSee.floorPrice"
-                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+                <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.floorPrice"
                   class="flex q-pa-md text-center column q-gutter-y-sm">
                   <div class="flex row items-center">
-                    <div style="font-size: 1.5rem; font-weight: 1000;">
+                    <div style="font-size: 0.8rem; font-weight: 1000;">
                       {{ collectionToSee.floorPrice }}
                     </div>
                     <q-icon name="currency_bitcoin" color="white" size="xs"></q-icon>
@@ -373,20 +731,18 @@
                     Floor Price
                   </div>
                 </div>
-                <div v-if="collectionToSee.supply"
-                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+                <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.supply"
                   class="flex q-pa-md column text-center q-gutter-y-sm">
-                  <div style="font-size: 1.5rem; font-weight: 1000;">
+                  <div style="font-size: 0.8rem; font-weight: 1000;">
                     {{ collectionToSee.supply }}
                   </div>
                   <div>
                     Total Supply
                   </div>
                 </div>
-                <div v-if="collectionToSee.event"
-                  style="border: 0.5px solid rgba(255, 166, 0, 0.377); border-radius: 3px; "
+                <div style="border: 0.5px solid orange; border-radius: 3px;" v-if="collectionToSee.event"
                   class="flex q-pa-md text-center column q-gutter-y-sm">
-                  <div style="font-size: 1.5rem; font-weight: 1000;">
+                  <div style="font-size: 0.8rem; font-weight: 1000;">
                     {{ collectionToSee.event.length }}
                   </div>
                   <div>
@@ -395,26 +751,34 @@
                 </div>
               </div>
             </div>
+
+
             <div style="border: solid 0.5px orange; height: 40vh; overflow-y: scroll;"
               class="full-width q-px-sm items-center">
               <div style="height: max-content;" class="full-width ">
                 <div v-for="(event, index) in collectionToSee.event" :key="index">
                   <div style="border-bottom: solid 0.5px orange; height: 100px;"
-                    class="row flex full-width items-center justify-center">
+                    class="row arrows-event cursor-pointer flex full-width items-center justify-center">
+                    <q-tooltip class="text-h6">
+                      {{ event.createdAt }}
+                    </q-tooltip>
                     <div class="flex q-px-sm full-width justify-between items-center row">
+
                       <div class="justify-start row q-gutter-x-sm flex items-center">
+
                         <div>
                           <q-img
                             v-if="event.token.contentType != 'text/html;charset=utf-8' && event.token.contentType != 'text/html'"
                             :src="`https://ordinals.com/content/${event.tokenId}`"
-                            style="width: 60px; height: 60px;"></q-img>
+                            style="width: 35px; height: 35px;"></q-img>
                           <iframe
                             v-if="event.token.contentType == 'text/html;charset=utf-8' || event.token.contentType == 'text/html'"
-                            :src="`https://ordinals.com/content/${event.tokenId}`" width="60" height="60"></iframe>
+                            :src="`https://ordinals.com/content/${event.tokenId}`" width="35" height="35"></iframe>
                         </div>
-                        <div class="column flex q-gutter-y-sm">
+                        <div class="column flex ">
                           <div>
-                            {{ event.token.meta ? event.token.meta.name : '' }}
+                            {{ event.token.meta ? event.token.meta.name.length > 7 ? event.token.meta.name.slice(0, 7) +
+                              '...' : event.token.meta.name : '' }}
                           </div>
                           <div>
                             <span style="font-size: 0.75rem;"> Inscription: </span> <span class="text-bold">{{
@@ -423,7 +787,8 @@
                         </div>
                       </div>
                       <div :class="`justify-end q-px-sm column flex items-end text-right q-gutter-y-sm`">
-                        <div
+
+                        <div style="font-size: 0.72rem;"
                           :class="`
                           text-bold text-right q-px-sm items-end flex ${event.kind == 'create' || event.kind == 'Mint' ? 'text-blue-2' : ''} ${event.kind == 'Sell' ? 'text-orange-2' : ''} ${event.kind == 'Receive' ? 'text-cyan-5' : ''}  ${event.kind == 'Buy' ? 'text-cyan-2' : ''} ${event.kind == 'send' ? 'text-cyan-5' : ''}`">
                           {{ event.kind == 'create' ? 'MINTED' : '' }}
@@ -439,7 +804,6 @@
                               (parseFloat(event.listedPrice) /
                                 100000000).toFixed(6) : '' : '' }}
                           </div>
-                          <q-icon color="orange" name="currency_bitcoin" dense size="0.7rem"></q-icon>
                         </div>
                       </div>
                     </div>
@@ -451,6 +815,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
     <q-dialog v-model="dialogAboutCollection">
       <q-card style="width: fit-content; height: fit-content;" class="bg-dark q-pa-lg">
         <q-card-section>
@@ -490,7 +855,12 @@ export default defineComponent({
       currentTextIndex: 0,
       dataTracked: [],
       dataTrades: [],
+      dialogHoldingCollection: false,
+      collectiontoSeeHolded: [],
+      collectiontoSeeHoldedStats: [],
       dataCollections: [],
+      dataHoldings: [],
+      dataHoldings: [],
       overallBuy: null,
       overallMint: null,
       overallSell: null,
@@ -513,6 +883,11 @@ export default defineComponent({
     ColumnChart
   },
   methods: {
+    openCollectionHolding(collection, stats) {
+      this.dialogHoldingCollection = true
+      this.collectiontoSeeHolded = collection
+      this.collectiontoSeeHoldedStats = stats
+    },
     openInNewTab(url) {
       window.open(url, '_blank');
     },
@@ -573,7 +948,9 @@ export default defineComponent({
         this.overallPnl = response.data['ordinals-track'].pnl
         this.dataTrades = response.data['ordinals-track'].trades
         this.dataCollections = response.data['ordinals-track'].collections
+        this.dataHoldings = response.data['ordinals-track'].holdings
         this.loadingData = false
+        console.log('data', response.data)
         console.log('dataTracked', this.dataTracked)
         console.log('overallBuy', this.overallBuy)
         console.log('overallSell', this.overallSell)
@@ -581,6 +958,17 @@ export default defineComponent({
         console.log('overallCount', this.overallCount)
         console.log('dataTrades', this.dataTrades)
         console.log('dataCollections', this.dataCollections)
+      } catch (e) {
+        console.error(e)
+      }
+      try {
+        const response = await axios.get(`https://api.ordinalstracker.io/holdings/${wallets}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        this.dataHoldings = response.data.holdings
+        console.log('holdings', this.dataHoldings)
       } catch (e) {
         console.error(e)
       }
@@ -610,6 +998,13 @@ export default defineComponent({
   background-color: #252424;
 }
 
+.arrows-event {
+  background-color: #252424;
+}
+
+.arrows-event:hover {
+  background-color: #3d3939af;
+}
 
 /* Estilo padrão */
 .hover-effect {
@@ -627,6 +1022,15 @@ export default defineComponent({
 
 .hover-effect q-img {
   border: solid 0.6px #f7941a63;
+}
+
+.grid-holding {
+  border: 0.5px;
+  transition: 0.5s;
+}
+
+.grid-holding:hover {
+  border: 0.5px solid orange;
 }
 
 .hover-effect>div {
