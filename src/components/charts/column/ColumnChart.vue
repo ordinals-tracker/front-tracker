@@ -196,7 +196,6 @@ export default {
         this.originalDataChartDates = response.data['ordinals-track'].chart[3]['Dates']
         this.filterData('6m')
         this.loadedDataChart = false
-
       } catch (e) {
         console.error(e)
       }

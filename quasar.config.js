@@ -90,6 +90,9 @@ module.exports = configure(function (/* ctx */) {
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
 
+      // (like functional components as one of the examples),
+      // you can manually specify Quasar components/directives to be available everywhere:
+      //
       // components: [],
       // directives: [],
 
