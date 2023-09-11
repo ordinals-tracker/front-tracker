@@ -936,7 +936,6 @@
 <script>
 import { defineAsyncComponent, defineComponent, ref } from 'vue'
 import axios from 'axios'
-// import Chart from 'src/components/charts/line/ApexLine.vue'
 const ApexLine = defineAsyncComponent(() =>
   import('src/components/charts/line/ApexLine.vue')
 )
@@ -999,10 +998,8 @@ export default defineComponent({
       let walletsAdd = this.$route.params.id.split(',');
 
       if(walletsAdd.length === 1) {
-        // Se há apenas uma wallet, retorna ela formatada normalmente
         return walletsAdd[0].slice(0, 6) + '...' + walletsAdd[0].slice(-6);
       } else {
-        // Se há múltiplas wallets, retorna a primeira formatada seguida por '...' e o número de wallets
         return walletsAdd[0].slice(0, 6) + '...' + walletsAdd[0].slice(-6) + ' ...+' + (walletsAdd.length - 1);
       }
     }
@@ -1019,7 +1016,6 @@ export default defineComponent({
   methods: {
     getPNL(row) {
       if (row.sell.length === 0) {
-        // Se não há uma ação de venda, retorna nulo para PNL e PNL (%)
         return { value: null, percentage: null };
       }
       let initialPrice = 0;
@@ -1038,7 +1034,6 @@ export default defineComponent({
     },
     getPNLUsd(row) {
       if (row.sell.length === 0) {
-        // Se não há uma ação de venda, retorna nulo para PNL e PNL (%)
         return { value: null, percentage: null };
       }
       let initialPrice = 0;
@@ -1064,14 +1059,12 @@ export default defineComponent({
       window.open(url, '_blank');
     },
     convertTimestampToDate(timestamp) {
-      const date = new Date(timestamp * 1000);  // multiplicamos por 1000
+      const date = new Date(timestamp * 1000);
       return date.toLocaleDateString();
     },
     downloadCSV() {
       const csvRows = [];
 
-      // Header
-      // Header
       const headers = [
         ...this.tableColumns.map((col) => col.label).filter((label) => label !== 'PNL'),
         'Inscription ID',
@@ -1091,47 +1084,43 @@ export default defineComponent({
       csvRows.push(headers.join(';'));
 
 
-      // Rows
       this.dataTrades.forEach((row) => {
         const values = this.tableColumns.map((col) => {
-          if (col.label === 'PNL') return;  // Ignore a coluna PNL aqui
+          if (col.label === 'PNL') return;
           let val = row[col.name];
           if (Array.isArray(val) && val.length > 0) {
-            val = parseFloat(val[0]?.price || 0).toFixed(5);  // Formatar corretamente os preços
+            val = parseFloat(val[0]?.price || 0).toFixed(5);
           } else {
-            val = val || '';  // Converter undefined/null para string vazia
+            val = val || '';
           }
           return val;
-        }).filter(Boolean); // Isso remove valores undefined da array
+        }).filter(Boolean);
 
-        // Adicionando detalhes adicionais (timestamps e txIDs)
         values.push(row.id || '');
         values.push(row.buy[0] ? this.convertTimestampToDate(row.buy[0].when) : '');
         values.push(row.sell[0] ? this.convertTimestampToDate(row.sell[0].when) : '');
         values.push(row.buy[0] ? row.buy[0].tx : '');
         values.push(row.sell[0] ? row.sell[0].tx : '');
 
-        // Adicionando novos campos: 'Inscription ID', 'Minted Timestamp', 'Minted TxID'
         values.push(row.mint[0] ? this.convertTimestampToDate(row.mint[0].when) : '');
         values.push(row.mint[0] ? row.mint[0].tx : '');
         values.push(row.mint[0] ? '$' + parseFloat(row.mint[0]?.usd_price || 0).toFixed(2) : '');
         values.push(row.buy[0] ? '$' + parseFloat(row.buy[0]?.usd_price || 0).toFixed(2) : '');
         values.push(row.sell[0] ? '$' + parseFloat(row.sell[0]?.usd_price || 0).toFixed(2) : '');
 
-        // Obtendo e adicionando o valor PNL em USD
 
-        if (row.sell.length > 0) { // Verifica se há uma venda
+        if (row.sell.length > 0) {
           const pnl = this.getPNL(row);
-          values.push(pnl.percentage !== null && pnl.percentage !== Infinity ? pnl.percentage.toFixed(2) + '%' : '');  // Adiciona PNL (%) à linha, se disponível e não é Infinity
+          values.push(pnl.percentage !== null && pnl.percentage !== Infinity ? pnl.percentage.toFixed(2) + '%' : '');
         } else {
-          values.push(''); // Adiciona valores vazios para PNL (%) se não há venda
+          values.push('');
         }
 
-        if (row.sell.length > 0) { // Verifica se há uma venda
+        if (row.sell.length > 0) {
           const pnl = this.getPNL(row);
-          values.push(pnl.value !== null && pnl.value !== Infinity ? pnl.value.toFixed(5) : '');  // Adiciona PNL (%) à linha, se disponível e não é Infinity
+          values.push(pnl.value !== null && pnl.value !== Infinity ? pnl.value.toFixed(5) : '');
         } else {
-          values.push(''); // Adiciona valores vazios para PNL (%) se não há venda
+          values.push('');
         }
 
         const pnlUsd = this.getPNLUsd(row);
@@ -1181,14 +1170,6 @@ export default defineComponent({
         this.dataCollections = response.data['ordinals-track'].collections
         this.dataHoldings = response.data['ordinals-track'].holdings
         this.loadingData = false
-        // console.log('data', response.data)
-        // console.log('dataTracked', this.dataTracked)
-        // console.log('overallBuy', this.overallBuy)
-        // console.log('overallSell', this.overallSell)
-        // console.log('overallMint', this.overallMint)
-        // console.log('overallCount', this.overallCount)
-        // console.log('dataTrades', this.dataTrades)
-        // console.log('dataCollections', this.dataCollections)
       } catch (e) {
         console.error(e)
       }
@@ -1202,8 +1183,6 @@ export default defineComponent({
         this.loadingDataHoldings = false
         this.totalBalanceOrdinals = response.data.total_balance
         this.totalBalanceOrdinalsUsd = response.data.usd_total_balance
-        // console.log('holdings', this.dataHoldings)
-        // console.log('reposne', response.data)
       } catch (e) {
         console.error(e)
       }
@@ -1241,7 +1220,6 @@ export default defineComponent({
   background-color: #3d3939af;
 }
 
-/* Estilo padrão */
 .hover-effect {
   transition: transform 0.3s;
 }
@@ -1276,7 +1254,6 @@ export default defineComponent({
   transition: border-color 0.3s;
 }
 
-/* Estilo quando o mouse está sobre o elemento */
 .hover-effect:hover {
   transform: translateZ(5px);
 }
@@ -1301,14 +1278,10 @@ export default defineComponent({
   top: 0;
   z-index: 1;
   background-color: inherit;
-  /* para manter a cor de fundo */
 }
 
-/* .custom-table .q-tr {
-    border-bottom: 1px solid rgb(235, 235, 235);
-} */
 
-/* Opcional: Se você quiser remover a borda da última linha para evitar duplicatas, use o seguinte: */
+
 .custom-table .q-tr:last-child {
   border-bottom: none;
 }
@@ -1316,7 +1289,6 @@ export default defineComponent({
 
 .custom-table .q-table__viewport {
   max-height: calc(100% - 52px);
-  /* 52px é uma estimativa para a altura do cabeçalho. Ajuste conforme necessário */
 }
 
 .transition-out {
