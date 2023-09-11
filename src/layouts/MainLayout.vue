@@ -8,7 +8,7 @@
          </div>
         </q-toolbar-title>
 
-        <div v-if="this.$route.path != '/'" class="q-px-sm">
+        <div v-if="this.$route.path != '/'" class="">
           <q-btn to="/" style="border-radius: 9px;" icon="search" icon-right="add" color="orange" flat label="New Track"></q-btn>
         </div>
       </q-toolbar>

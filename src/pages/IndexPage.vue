@@ -263,7 +263,6 @@ export default defineComponent({
     checkUnisat() {
       if (typeof window.unisat !== 'undefined') {
         this.unisatInstalled = true
-        // console.log('UniSat Wallet is installed!');
       }
     },
     async getXverseWalletaAddress() {
@@ -295,7 +294,6 @@ export default defineComponent({
             }
 
             this.walletDialogModal = false
-            // console.log(response);
 
           },
           onCancel: () => alert('Request canceled'),
@@ -310,7 +308,7 @@ export default defineComponent({
     async getUnisatWalletAddress() {
       try {
         let accounts = await window.unisat.requestAccounts();
-        console.log('connect success', accounts);
+        // console.log('connect success', accounts);
         this.walletToSearch = accounts;
         this.$router.push('/track/' + this.walletToSearch)
       } catch (e) {

@@ -7,7 +7,7 @@
           Ordinals Overall Stats
         </div>
         <div class="text-h6 col flex q-mt-lg  text-grey-5 text-bold">
-          Wallet: {{ this.walletInserted && this.walletInserted }}
+          Wallet: {{ formattedWalletString }}
         </div>
       </div>
       <div style="margin-top: -30px; ;"
@@ -16,7 +16,7 @@
           Ordinals Overall Stats
         </div>
         <div class=" flex  text-grey-5 ">
-          Wallet: {{ this.walletInserted && this.walletInserted }}
+          Wallet: {{ formattedWalletString }}
         </div>
       </div>
       <!-- GRAPHS STATS -->
@@ -42,7 +42,9 @@
                   <div class="text-bold text-h6">
                     Total Minted
                   </div>
-                  <div class="text-bold flex row items-center text-h6">
+                  <div class="text-bold cursor-pointer flex row items-center text-h6">
+                    <q-tooltip style="font-size: 0.99rem;" class="text-light">USD: ${{
+                      parseFloat(this.overallMintUsd).toFixed(2) }}</q-tooltip>
                     <div>
                       {{ parseFloat(this.overallMint).toFixed(7) }}
                     </div>
@@ -53,7 +55,9 @@
                   <div class="text-bold text-h6">
                     Total Bought
                   </div>
-                  <div class="text-bold flex row items-center text-h6">
+                  <div class="text-bold cursor-pointer flex row items-center text-h6">
+                    <q-tooltip style="font-size: 0.99rem;" class="text-light">USD: ${{ parseFloat(this.overallBuyUsd
+                      .toFixed(2)) }}</q-tooltip>
                     <div>
                       {{ parseFloat(this.overallBuy).toFixed(7) }}
                     </div>
@@ -65,7 +69,9 @@
                   <div class="text-bold text-h6">
                     Total Sold
                   </div>
-                  <div class="text-bold flex row items-center text-h6">
+                  <div class="text-bold cursor-pointer flex row items-center text-h6">
+                    <q-tooltip style="font-size: 0.99rem;" class="text-light">USD: ${{
+                      parseFloat(this.overallSellUsd).toFixed(2) }}</q-tooltip>
                     <div>
                       {{ parseFloat(this.overallSell).toFixed(7) }}
                     </div>
@@ -77,8 +83,13 @@
                   <div class="text-bold text-h6">
                     PNL
                   </div>
-                  <div class="text-bold text-h6">
-                    {{ parseFloat(this.overallPnl).toFixed(4) + ' %' }}
+                  <div class="text-bold cursor-pointer items-center flex text-h6">
+                    <q-tooltip style="font-size: 0.99rem;" class="text-light">USD: ${{
+                      parseFloat(this.overallPnlUsd).toFixed(2) }}</q-tooltip>
+                    <div>
+                      {{ parseFloat(this.overallPnl).toFixed(5) }}
+                    </div>
+                    <q-icon class="text-bold" color="orange-5" size="xs" name="currency_bitcoin"></q-icon>
                   </div>
                 </div>
               </div>
@@ -89,57 +100,57 @@
           </div>
           <div style="height: 50%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
             class="col flex column">
+
             <div style="border-bottom: solid 0.5px #f7941a63;"
-              class="flex q-px-md q-py-md justify-start items-center full-width">
-              <div class="text-h6 text-bold text-white">
-                Holdings.
+              class="flex q-px-md q-py-md justify-between items-center full-width">
+              <div class="flex justify-start">
+                <div class="text-h6 text-bold text-white">Holdings.</div>
+              </div>
+              <div class="flex cursor-pointer row q-gutter-x-xs items-center justify-end">
+                <q-tooltip style="font-size: 0.99rem;" class="text-bold">
+                  USD: ${{ parseFloat(totalBalanceOrdinalsUsd).toFixed(2) }}
+                </q-tooltip>
+                <div class=" text-bold text-h6 text-white">{{ totalBalanceOrdinals }}</div>
+                <q-icon name="currency_bitcoin" color="orange" size="xs"></q-icon>
               </div>
             </div>
-            <div class="justify-between  full-width flex items-center q-px-lg q-py-sm">
-              <div class="justify-start items-center flex">
-                <div>
-                  Collection
-                </div>
-              </div>
-              <div class="flex justify-end q-gutter-x-lg items-center ">
-                <div>
-                  Floorprice
-                </div>
-                <div>
-                  Amount
-                </div>
-              </div>
-            </div>
-            <div style="height: 300px; overflow-y: scroll;"
-              class="full-width q-pt-sm q-pb-md q-px-md justify-center flex-center items-center">
-              <div style="height: max-content;" v-if="!loadingData"
-                class="justify-start column flex q-gutter-y-md flex-center items-center flex row full-width">
-                <div class="full-width" v-for="(holding, index) in dataHoldings" :key="index">
-                  <div @click="openCollectionHolding(holding.inscriptions, holding)"
-                    class="full-width arrows-action cursor-pointer q-px-sm q-py-sm justify-between flex items-start">
-                    <div class=" flex items-center q-gutter-x-sm justify-start">
-                      <div class="">
-                        <q-img style="width: 30px;" :src="holding.imageURI"></q-img>
-                      </div>
-                      <div class="">
-                        {{ holding.name }}
-                      </div>
+
+
+            <q-table v-if="!loadingDataHoldings" v-model:pagination="pagination" hide-bottom :rows-per-page-options="[0]"
+              dark :rows="dataHoldings" :columns="columns" row-key="name"
+              style="height: 300px; overflow-y: scroll; border: none" class="q-pa-md bg-btc full-width">
+              <template v-slot:body="props">
+                <q-tr class="cursor-pointer" @click="openCollectionHolding(props.row.inscriptions, props.row)"
+                  :props="props">
+                  <q-td key="imageURI" :props="props">
+                    <q-img style="width: 30px;" :src="props.row.imageURI" />
+                  </q-td>
+                  <q-td key="name" :props="props">{{ props.row.name }}</q-td>
+                  <q-td key="inscriptions" class="flex items-center text-center justify-center" :props="props">
+                    <div class="q-pr-md">
+                      {{ parseFloat(props.row.inscriptions.length) }}
                     </div>
-                    <div class=" flex justify-end q-gutter-x-xl items-center ">
-                      <div class="text-bold q-gutter-x-sm flex text-center flex-center items-center">
-                        <q-icon name="currency_bitcoin" size="0.75rem" color="orange"></q-icon>
-                        <div>{{ parseFloat(holding.floorPrice).toFixed(5) }}</div>
-                      </div>
-                      <div class="text-bold">
-                        {{ parseFloat(holding.inscriptions.length) }}
-                      </div>
+                  </q-td>
+                  <q-td key="floorPrice" :props="props">
+                    <div class="text-bold q-gutter-x-sm flex text-start flex-start items-center">
+                      <q-icon name="currency_bitcoin" size="0.75rem" color="orange"></q-icon>
+                      <div>{{ parseFloat(props.row.floorPrice).toFixed(5) }}</div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="full-width flex justify-center items-center q-py-md" v-else>
-                <q-spinner size="lg" color="orange"></q-spinner>
-              </div>
+                  </q-td>
+                  <q-td key="holdingBalance" :props="props">
+                    <div class="text-bold cursor-pointer q-gutter-x-sm flex text-start flex-start items-center">
+                      <q-tooltip style="font-size: 0.99rem;" class="">
+                        USD: ${{ parseFloat(props.row.usd_holdingBalance).toFixed(2) }}
+                      </q-tooltip>
+                      <q-icon name="currency_bitcoin" size="0.75rem" color="orange"></q-icon>
+                      <div>{{ parseFloat(props.row.holdingBalance).toFixed(5) }}</div>
+                    </div>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+            <div class="full-width flex justify-center items-center q-py-md" v-else>
+              <q-spinner size="lg" color="orange"></q-spinner>
             </div>
           </div>
         </div>
@@ -201,11 +212,14 @@
 
                 </div>
                 <div class="flex column q-gutter-y-sm items-center">
-                  <div class="text-bold ">
+                  <div class="text-bold">
                     PNL
                   </div>
-                  <div class="text-bold ">
-                    {{ parseFloat(this.overallPnl).toFixed(4) + ' %' }}
+                  <div class="text-bold items-center flex">
+                    <div>
+                      {{ parseFloat(this.overallPnl).toFixed(5) }}
+                    </div>
+                    <q-icon class="text-bold" color="orange-5" size="xs" name="currency_bitcoin"></q-icon>
                   </div>
                 </div>
               </div>
@@ -216,52 +230,49 @@
           </div>
           <div style="height: 50%; width: 100%; border: solid 0.5px #f7941a63; border-radius: 4px;"
             class="col flex column">
+
             <div style="border-bottom: solid 0.5px #f7941a63;"
-              class="flex q-px-md q-py-md justify-start items-center full-width">
-              <div class=" text-bold text-white">
-                Holdings.
+              class="flex q-px-md q-py-md justify-between items-center full-width">
+              <div class="flex justify-start">
+                <div class="text-h6 text-bold text-white">Holdings.</div>
+              </div>
+              <div class="flex row q-gutter-x-xs items-center justify-end">
+                <div class=" text-bold text-h6 text-white">{{ totalBalanceOrdinals }}</div>
+                <q-icon name="currency_bitcoin" color="orange" size="xs"></q-icon>
               </div>
             </div>
-            <div class="full-width q-pt-xl q-pb-md q-px-md justify-center flex-center items-center">
-              <div v-if="!loadingData" class="justify-around flex-center items-center flex row full-width">
-                <div class="flex column q-gutter-y-sm items-center">
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                </div>
-                <div class="flex column q-gutter-y-sm items-center">
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
 
-                </div>
-                <div class="flex column q-gutter-y-sm items-center">
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
 
-                </div>
-                <div class="flex column q-gutter-y-sm items-center">
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                  <div class="text-bold text-h6">
-                    ***
-                  </div>
-                </div>
-              </div>
-              <div class="full-width flex justify-center items-center q-py-md" v-else>
-                <q-spinner size="lg" color="orange"></q-spinner>
-              </div>
+            <q-table v-if="!loadingDataHoldings" v-model:pagination="pagination" hide-bottom :rows-per-page-options="[0]"
+              dark :rows="dataHoldings" :columns="columns" row-key="name"
+              style="height: 300px; overflow-y: scroll; border: none" class="q-pa-md bg-btc full-width">
+              <template v-slot:body="props">
+                <q-tr class="cursor-pointer" @click="openCollectionHolding(props.row.inscriptions, props.row)"
+                  :props="props">
+                  <q-td key="imageURI" :props="props">
+                    <q-img style="width: 30px;" :src="props.row.imageURI" />
+                  </q-td>
+                  <q-td key="name" :props="props">{{ props.row.name }}</q-td>
+                  <q-td key="inscriptions" class="flex items-center text-center justify-center" :props="props">
+                    <div class="q-pr-md">
+                      {{ parseFloat(props.row.inscriptions.length) }}
+                    </div>
+                  </q-td>
+                  <q-td key="floorPrice" :props="props">
+                    <div class="text-bold q-gutter-x-sm flex text-start flex-start items-center">
+                      <div>{{ parseFloat(props.row.floorPrice).toFixed(5) }}</div>
+                    </div>
+                  </q-td>
+                  <q-td key="holdingBalance" :props="props">
+                    <div class="text-bold q-gutter-x-sm flex text-start flex-start items-center">
+                      <div>{{ parseFloat(props.row.holdingBalance).toFixed(5) }}</div>
+                    </div>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+            <div class="full-width flex justify-center items-center q-py-md" v-else>
+              <q-spinner size="lg" color="orange"></q-spinner>
             </div>
           </div>
         </div>
@@ -353,14 +364,32 @@
                       </div>
                     </div>
                   </q-td>
+                  <q-td key="collection" :props="props">
+                    <div class="row items-center q-gutter-x-sm">
+                      <div>
+                        <span @click="openInNewTab(`https://magiceden.io/ordinals/item-details/${props.row.id}`)"
+                          class="cursor-pointer"> {{ props.row.collection
+                          }}</span>
+
+                      </div>
+                    </div>
+                  </q-td>
                   <q-td key="buy" :props="props">
                     <div v-if="props.row.buy.length > 0" class="flex row items-center q-gutter-x-xs">
                       <div>
                         <span @click="openInNewTab(`https://mempool.space/tx/${props.row.buy[0].tx}`)"
                           class="text-bold cursor-pointer text-red-5">{{
                             '- ' + props.row.buy[0].price }}
-                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.buy[0].when)
-                          }}</q-tooltip>
+                          <q-tooltip class="text-bold text-h6 column flex q-gutter-y-sm">
+                            <div style="font-size: 0.8rem;">
+                              {{
+                                convertTimestampToDate(props.row.buy[0].when)
+                              }}
+                            </div>
+                            <div style="font-size: 0.9rem; font-weight: 300;" class="">
+                              USD: ${{ parseFloat(props.row.buy[0].usd_price).toFixed(2) }}
+                            </div>
+                          </q-tooltip>
                         </span>
                       </div>
                       <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
@@ -372,8 +401,17 @@
                         <span @click="openInNewTab(`https://mempool.space/tx/${props.row.mint[0].tx}`)"
                           class="text-bold cursor-pointer text-cyan-5">{{
                             '- ' + props.row.mint[0].price }}
-                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.mint[0].when)
-                          }}</q-tooltip>
+                          <q-tooltip class="text-bold text-h6 column flex q-gutter-y-sm">
+                            <div style="font-size: 0.8rem;">
+                              {{
+                                convertTimestampToDate(props.row.mint[0].when)
+                              }}
+                            </div>
+                            <div style="font-size: 0.9rem; font-weight: 300;" class="">
+                              USD: ${{ parseFloat(props.row.mint[0].usd_price).toFixed(2) }}
+                            </div>
+                          </q-tooltip>
+
                         </span>
                       </div>
                       <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
@@ -385,11 +423,47 @@
                         <span @click="openInNewTab(`https://mempool.space/tx/${props.row.sell[0].tx}`)"
                           class="text-bold cursor-pointer text-green-5">{{
                             '+ ' + props.row.sell[0].price }}
-                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.sell[0].when)
-                          }}</q-tooltip>
+                          <q-tooltip class="text-bold text-h6 column flex q-gutter-y-sm">
+                            <div style="font-size: 0.8rem;">
+                              {{
+                                convertTimestampToDate(props.row.sell[0].when)
+                              }}
+                            </div>
+                            <div style="font-size: 0.9rem; font-weight: 300;" class="">
+                              USD: ${{ parseFloat(props.row.sell[0].usd_price).toFixed(2) }}
+                            </div>
+                          </q-tooltip>
                         </span>
                       </div>
                       <q-icon name="currency_bitcoin" color="orange" size="0.77rem"></q-icon>
+                    </div>
+                  </q-td>
+                  <q-td key="pnl" :props="props">
+                    <div class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span v-if="getPNL(props.row).value !== null"
+                          :class="getPNL(props.row).value >= 0 ? 'text-bold cursor-pointer text-green-5' : 'text-bold cursor-pointer text-red-5'">
+                          {{ getPNL(props.row).value.toFixed(5) }}
+                          <q-tooltip class="text-bold text-h6 column flex q-gutter-y-sm">
+                            <div style="font-size: 0.8rem;">
+                              {{
+                                convertTimestampToDate(props.row.sell[0].when)
+                              }}
+                            </div>
+                            <div style="font-size: 0.9rem; font-weight: 300;" class="">
+                              USD: ${{ getPNLUsd(props.row).value.toFixed(2) }}
+                            </div>
+                          </q-tooltip>
+
+                        </span>
+                      </div>
+                      <q-icon v-if="getPNL(props.row).value !== null" name="currency_bitcoin" color="orange"
+                        size="0.77rem"></q-icon>
+                      <div v-if="getPNL(props.row).percentage !== null">
+                        <span :class="getPNL(props.row).value >= 0 ? 'text-green-5' : 'text-red-5'">
+                          ({{ getPNL(props.row).percentage.toFixed(2) }}%)
+                        </span>
+                      </div>
                     </div>
                   </q-td>
                 </q-tr>
@@ -469,9 +543,8 @@
               </div>
             </div>
             <q-table v-model:pagination="pagination" :rows-per-page-options="[0]" dark
-              class="text-white custom-table text-bold bg-btc" v-if="sectionGrid == 'activities'" virtual-scroll
-              style="height: 400px" flat :rows="dataTrades" :columns="tableColumns" color="black" row-key="index"
-              hide-bottom>
+              class="text-white full-width text-bold bg-btc" v-if="sectionGrid == 'activities'" style="height: 400px" flat
+              :rows="dataTrades" :columns="tableColumns" color="black" row-key="index" hide-bottom>
               <template v-slot:body="props">
                 <q-tr :props="props">
                   <q-td key="name" :props="props">
@@ -480,6 +553,17 @@
                         <span @click="openInNewTab(`https://magiceden.io/ordinals/item-details/${props.row.id}`)"
                           class="cursor-pointer"> {{ props.row.name != '' ? props.row.name.length > 6 ?
                             props.row.name.slice(0, 6) + '...' : props.row.name : props.row.collection
+                          }}</span>
+
+                      </div>
+                    </div>
+                  </q-td>
+                  <q-td key="collection" :props="props">
+                    <div class="row items-center q-gutter-x-sm">
+                      <div style="font-size: 0.77rem;">
+                        <span @click="openInNewTab(`https://magiceden.io/ordinals/item-details/${props.row.id}`)"
+                          class="cursor-pointer"> {{ props.row.collection.length > 8 ? props.row.collection.slice(0, 8) +
+                            '...' : props.row.collection
                           }}</span>
 
                       </div>
@@ -517,6 +601,23 @@
                             '+ ' + props.row.sell[0].price }}
                           <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.sell[0].when)
                           }}</q-tooltip>
+                        </span>
+                      </div>
+                    </div>
+                  </q-td>
+                  <q-td key="pnl" :props="props">
+                    <div class="flex row items-center q-gutter-x-xs">
+                      <div>
+                        <span v-if="getPNL(props.row).value !== null"
+                          :class="getPNL(props.row).value >= 0 ? 'text-bold cursor-pointer text-green-5' : 'text-bold cursor-pointer text-red-5'">
+                          {{ getPNL(props.row).value.toFixed(5) }}
+                          <q-tooltip class="text-bold text-h6">{{ convertTimestampToDate(props.row.sell[0]?.when)
+                          }}</q-tooltip>
+                        </span>
+                      </div>
+                      <div v-if="getPNL(props.row).percentage !== null">
+                        <span :class="getPNL(props.row).value >= 0 ? 'text-green-5' : 'text-red-5'">
+                          ({{ getPNL(props.row).percentage.toFixed(2) }}%)
                         </span>
                       </div>
                     </div>
@@ -564,14 +665,15 @@
                 </div>
               </div>
               <div style="font-weight: 300;">
-                 Balance
+                Balance
               </div>
             </div>
           </div>
           <div style="height: 33vh; overflow-y: scroll;">
             <div style="height: max-content;"
               class="grid q-gutter-md full-width flex-wrap flex items-center justify-start full-width q-px-sm q-py-sm">
-              <div @click="openInNewTab(`https://ord.io/${item.inscriptionNumber}`)" style="width: 21%; height: fit-content; border: solid 0.5px orange;"
+              <div @click="openInNewTab(`https://ord.io/${item.inscriptionNumber}`)"
+                style="width: 21%; height: fit-content; border: solid 0.5px orange;"
                 class="text-white grid-holding column flex q-gutter-y-none text-bold cursor-pointer items-start"
                 v-for="(item, index) in this.collectiontoSeeHolded" :key="index">
                 <q-img
@@ -776,9 +878,12 @@
                             :src="`https://ordinals.com/content/${event.tokenId}`" width="35" height="35"></iframe>
                         </div>
                         <div class="column flex ">
-                          <div>
+                          <div class="lt-md">
                             {{ event.token.meta ? event.token.meta.name.length > 7 ? event.token.meta.name.slice(0, 7) +
                               '...' : event.token.meta.name : '' }}
+                          </div>
+                          <div class="gt-sm">
+                            {{ event.token.meta ? event.token.meta.name : '' }}
                           </div>
                           <div>
                             <span style="font-size: 0.75rem;"> Inscription: </span> <span class="text-bold">{{
@@ -845,19 +950,31 @@ export default defineComponent({
     return {
       tutorials: false,
       tableColumns: [
-        { name: 'name', required: true, label: 'Trade Name', align: 'left', field: 'name' },
+        { name: 'name', required: true, label: 'Inscription', align: 'left', field: 'name' },
+        { name: 'collection', required: true, label: 'Collection', align: 'left', field: 'collection' },
         { name: 'buy', required: true, label: 'Bought', align: 'left', field: 'buy' },
         { name: 'mint', required: true, label: 'Minted', align: 'left', field: 'mint' },
-        { name: 'sell', required: true, label: 'Sold', align: 'left', field: 'sell' }
+        { name: 'sell', required: true, label: 'Sold', align: 'left', field: 'sell' },
+        { name: 'pnl', required: true, label: 'PNL', align: 'left', field: 'pnl' }
+      ],
+      columns: [
+        { name: 'imageURI', label: 'Icon', align: 'left', field: row => row.imageURI },
+        { name: 'name', label: 'Collection', align: 'left', field: row => row.name },
+        { name: 'inscriptions', label: 'Amount', align: 'left', field: row => row.inscriptions.length },
+        { name: 'floorPrice', label: 'Floor Price', align: 'left', field: row => row.floorPrice },
+        { name: 'holdingBalance', label: 'Balance', align: 'left', field: row => row.holdingBalance },
       ],
       loadingData: true,
-      loadingTexts: ['Scrapping Sales', 'Scrapping Mints', 'Analyzing Data', 'Tracking Wallet', 'Searching Purchases', 'Calculating...', 'Scrapping Real Time Data...'],
+      loadingDataHoldings: true,
+      loadingTexts: ['Scraping Sales', 'Scraping Mints', 'Analyzing Data', 'Tracking Wallet', 'Searching Purchases', 'Calculating...', 'Scraping Real Time Data...'],
       currentTextIndex: 0,
       dataTracked: [],
       dataTrades: [],
       dialogHoldingCollection: false,
       collectiontoSeeHolded: [],
       collectiontoSeeHoldedStats: [],
+      totalBalanceOrdinals: null,
+      totalBalanceOrdinalsUsd: null,
       dataCollections: [],
       dataHoldings: [],
       dataHoldings: [],
@@ -866,11 +983,28 @@ export default defineComponent({
       overallSell: null,
       overallCount: null,
       overallPnl: null,
+      overallBuyUsd: null,
+      overallMintUsd: null,
+      overallSellUsd: null,
+      overallPnlUsd: null,
       singleCollectionDialog: false,
       dialogAboutCollection: false,
       collectionToSee: [],
       sectionGrid: 'assets',
-      walletInserted: this.$route.params.id.toString().slice(0, 6) + '...' + this.$route.params.id.toString().slice(-6),
+      walletInserted: this.$route.params.id
+    }
+  },
+  computed: {
+    formattedWalletString() {
+      let walletsAdd = this.$route.params.id.split(',');
+
+      if(walletsAdd.length === 1) {
+        // Se há apenas uma wallet, retorna ela formatada normalmente
+        return walletsAdd[0].slice(0, 6) + '...' + walletsAdd[0].slice(-6);
+      } else {
+        // Se há múltiplas wallets, retorna a primeira formatada seguida por '...' e o número de wallets
+        return walletsAdd[0].slice(0, 6) + '...' + walletsAdd[0].slice(-6) + ' ...+' + (walletsAdd.length - 1);
+      }
     }
   },
   setup() {
@@ -883,6 +1017,44 @@ export default defineComponent({
     ColumnChart
   },
   methods: {
+    getPNL(row) {
+      if (row.sell.length === 0) {
+        // Se não há uma ação de venda, retorna nulo para PNL e PNL (%)
+        return { value: null, percentage: null };
+      }
+      let initialPrice = 0;
+      let finalPrice = parseFloat(row.sell[0]?.price || 0);
+
+      if (row.mint.length > 0) {
+        initialPrice = parseFloat(row.mint[0]?.price || 0);
+      } else if (row.buy.length > 0) {
+        initialPrice = parseFloat(row.buy[0]?.price || 0);
+      }
+
+      let value = finalPrice - initialPrice;
+      let percentage = (initialPrice > 0) ? ((value / initialPrice) * 100) : null;
+
+      return { value, percentage };
+    },
+    getPNLUsd(row) {
+      if (row.sell.length === 0) {
+        // Se não há uma ação de venda, retorna nulo para PNL e PNL (%)
+        return { value: null, percentage: null };
+      }
+      let initialPrice = 0;
+      let finalPrice = parseFloat(row.sell[0]?.usd_price || 0);
+
+      if (row.mint.length > 0) {
+        initialPrice = parseFloat(row.mint[0]?.usd_price || 0);
+      } else if (row.buy.length > 0) {
+        initialPrice = parseFloat(row.buy[0]?.usd_price || 0);
+      }
+
+      let value = finalPrice - initialPrice;
+      let percentage = (initialPrice > 0) ? ((value / initialPrice) * 100) : null;
+
+      return { value, percentage };
+    },
     openCollectionHolding(collection, stats) {
       this.dialogHoldingCollection = true
       this.collectiontoSeeHolded = collection
@@ -892,24 +1064,79 @@ export default defineComponent({
       window.open(url, '_blank');
     },
     convertTimestampToDate(timestamp) {
-      const date = new Date(timestamp * 1000);  // multiplicamos por 1000 porque o JavaScript usa milissegundos
-      return date.toLocaleDateString();  // Você pode ajustar o formato como desejar
+      const date = new Date(timestamp * 1000);  // multiplicamos por 1000
+      return date.toLocaleDateString();
     },
     downloadCSV() {
       const csvRows = [];
+
       // Header
-      const headers = this.tableColumns.map(col => col.label);
+      // Header
+      const headers = [
+        ...this.tableColumns.map((col) => col.label).filter((label) => label !== 'PNL'),
+        'Inscription ID',
+        'Buy Timestamp',
+        'Sell Timestamp',
+        'Buy TxID',
+        'Sell TxID',
+        'Minted Timestamp',
+        'Minted TxID',
+        'Mint Price (USD)',
+        'Buy Price (USD)',
+        'Sell Price (USD)',
+        'PNL (%)',
+        'pnl',
+        'PNL (USD)',
+      ];
       csvRows.push(headers.join(';'));
 
+
       // Rows
-      this.dataTrades.forEach(row => {
-        const values = this.tableColumns.map(col => {
-          const val = row[col.name];
+      this.dataTrades.forEach((row) => {
+        const values = this.tableColumns.map((col) => {
+          if (col.label === 'PNL') return;  // Ignore a coluna PNL aqui
+          let val = row[col.name];
           if (Array.isArray(val) && val.length > 0) {
-            return val[0].price || '';
+            val = parseFloat(val[0]?.price || 0).toFixed(5);  // Formatar corretamente os preços
+          } else {
+            val = val || '';  // Converter undefined/null para string vazia
           }
-          return val || '';  // convertir undefined/null para string vazia
-        });
+          return val;
+        }).filter(Boolean); // Isso remove valores undefined da array
+
+        // Adicionando detalhes adicionais (timestamps e txIDs)
+        values.push(row.id || '');
+        values.push(row.buy[0] ? this.convertTimestampToDate(row.buy[0].when) : '');
+        values.push(row.sell[0] ? this.convertTimestampToDate(row.sell[0].when) : '');
+        values.push(row.buy[0] ? row.buy[0].tx : '');
+        values.push(row.sell[0] ? row.sell[0].tx : '');
+
+        // Adicionando novos campos: 'Inscription ID', 'Minted Timestamp', 'Minted TxID'
+        values.push(row.mint[0] ? this.convertTimestampToDate(row.mint[0].when) : '');
+        values.push(row.mint[0] ? row.mint[0].tx : '');
+        values.push(row.mint[0] ? '$' + parseFloat(row.mint[0]?.usd_price || 0).toFixed(2) : '');
+        values.push(row.buy[0] ? '$' + parseFloat(row.buy[0]?.usd_price || 0).toFixed(2) : '');
+        values.push(row.sell[0] ? '$' + parseFloat(row.sell[0]?.usd_price || 0).toFixed(2) : '');
+
+        // Obtendo e adicionando o valor PNL em USD
+
+        if (row.sell.length > 0) { // Verifica se há uma venda
+          const pnl = this.getPNL(row);
+          values.push(pnl.percentage !== null && pnl.percentage !== Infinity ? pnl.percentage.toFixed(2) + '%' : '');  // Adiciona PNL (%) à linha, se disponível e não é Infinity
+        } else {
+          values.push(''); // Adiciona valores vazios para PNL (%) se não há venda
+        }
+
+        if (row.sell.length > 0) { // Verifica se há uma venda
+          const pnl = this.getPNL(row);
+          values.push(pnl.value !== null && pnl.value !== Infinity ? pnl.value.toFixed(5) : '');  // Adiciona PNL (%) à linha, se disponível e não é Infinity
+        } else {
+          values.push(''); // Adiciona valores vazios para PNL (%) se não há venda
+        }
+
+        const pnlUsd = this.getPNLUsd(row);
+        values.push(pnlUsd.value !== null && !isNaN(pnlUsd.value) ? '$' + pnlUsd.value.toFixed(2) : '');
+
         csvRows.push(values.join(';'));
       });
 
@@ -942,6 +1169,10 @@ export default defineComponent({
         })
         this.dataTracked = response.data['ordinals-track']
         this.overallBuy = response.data['ordinals-track'].buy
+        this.overallBuyUsd = response.data['ordinals-track'].usd_buy
+        this.overallMintUsd = response.data['ordinals-track'].usd_mint
+        this.overallSellUsd = response.data['ordinals-track'].usd_sell
+        this.overallPnlUsd = response.data['ordinals-track'].usd_pnl
         this.overallSell = response.data['ordinals-track'].sell
         this.overallMint = response.data['ordinals-track'].mint
         this.overallCount = response.data['ordinals-track'].count
@@ -950,14 +1181,14 @@ export default defineComponent({
         this.dataCollections = response.data['ordinals-track'].collections
         this.dataHoldings = response.data['ordinals-track'].holdings
         this.loadingData = false
-        console.log('data', response.data)
-        console.log('dataTracked', this.dataTracked)
-        console.log('overallBuy', this.overallBuy)
-        console.log('overallSell', this.overallSell)
-        console.log('overallMint', this.overallMint)
-        console.log('overallCount', this.overallCount)
-        console.log('dataTrades', this.dataTrades)
-        console.log('dataCollections', this.dataCollections)
+        // console.log('data', response.data)
+        // console.log('dataTracked', this.dataTracked)
+        // console.log('overallBuy', this.overallBuy)
+        // console.log('overallSell', this.overallSell)
+        // console.log('overallMint', this.overallMint)
+        // console.log('overallCount', this.overallCount)
+        // console.log('dataTrades', this.dataTrades)
+        // console.log('dataCollections', this.dataCollections)
       } catch (e) {
         console.error(e)
       }
@@ -968,7 +1199,11 @@ export default defineComponent({
           }
         })
         this.dataHoldings = response.data.holdings
-        console.log('holdings', this.dataHoldings)
+        this.loadingDataHoldings = false
+        this.totalBalanceOrdinals = response.data.total_balance
+        this.totalBalanceOrdinalsUsd = response.data.usd_total_balance
+        // console.log('holdings', this.dataHoldings)
+        // console.log('reposne', response.data)
       } catch (e) {
         console.error(e)
       }

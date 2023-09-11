@@ -1,21 +1,21 @@
 <template>
-  <div v-if="!loadedDataChart" class="example full-width flex justify-center items-center">
-    <div class="filters gt-sm">
+  <div v-if="!loadedDataChart" class="example column flex full-width flex justify-center items-center">
+    <div class="filters gt-sm col">
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1w' ? 'orange': 'white'" cl @click="filterData('1w')">1 Week</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1m' ? 'orange': 'white'" cl @click="filterData('1m')">1 Month</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '3m' ? 'orange': 'white'" cl @click="filterData('3m')">3 Months</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '6m' ? 'orange': 'white'" cl @click="filterData('6m')">6 Months</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1y' ? 'orange': 'white'" cl @click="filterData('1y')">1 Year</q-btn>
     </div>
-    <div style="white-space: nowrap;" class="full-width flex row filters lt-md">
+    <div style="white-space: nowrap;" class="full-width flex row filters lt-md col">
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1w' ? 'orange': 'white'" cl @click="filterData('1w')">1 Week</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1m' ? 'orange': 'white'" cl @click="filterData('1m')">1 Month</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '3m' ? 'orange': 'white'" cl @click="filterData('3m')">3 Months</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '6m' ? 'orange': 'white'" cl @click="filterData('6m')">6 Months</q-btn>
       <q-btn flat dense class="q-mx-sm q-mb-md text-bold" :color="this.periodChange == '1y' ? 'orange': 'white'" cl @click="filterData('1y')">1 Year</q-btn>
     </div>
-    <apexchart class="gt-sm"  width="500" height="500" type="bar" :options="chartOptions" :series="series"></apexchart>
-    <apexchart class="lt-md"  width="300" height="300" type="bar" :options="chartOptions" :series="series"></apexchart>
+    <apexchart class="gt-sm col"  width="500" height="500" type="bar" :options="chartOptions" :series="series"></apexchart>
+    <apexchart class="lt-md col"  width="300" height="300" type="bar" :options="chartOptions" :series="series"></apexchart>
   </div>
   <div v-else class="justify-center items-center flex flex-center full-width">
     <q-spinner color="orange" ></q-spinner>
@@ -25,7 +25,6 @@
 
 <script>
 import axios from 'axios'
-// import { TouchSwipe } from 'quasar'
 
 export default {
   name: 'MixedExample',
@@ -71,11 +70,8 @@ export default {
         },
         stroke: {
           show: false,
-          // width: 2,
-          // colors: ['cyan']
         },
         xaxis: {
-          // categories: this.dataChartDates,
           labels: {
             show: false
           },
@@ -96,7 +92,7 @@ export default {
           }
         },
         grid: {
-          show: false, // Desativar todas as linhas de grade
+          show: false,
         },
         fill: {
           opacity: 1,
