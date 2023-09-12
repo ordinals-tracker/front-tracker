@@ -34,9 +34,9 @@ Our BTC Tax Report Tool is designed with a user-friendly interface to make your 
 * Step 2: In the input field provided, enter the details of the individual wallet you wish to search.
 * Step 3: Click “Search” to proceed. Your tax report for the specified wallet will be generated swiftly.
 
-# Xverse or Unsat Extension Web-Based Wallet Connection
+# Xverse or Unisat Extension Web-Based Wallet Connection
 
-* Step 1: Choose this option to connect and search your wallet using Xverse or Unsat web wallet extensions.
+* Step 1: Choose this option to connect and search your wallet using Xverse or Unisat web wallet extensions.
 * Step 2: Follow the instructions to connect your wallet securely through the extension of your choice.
 * Step 3: After connecting, proceed to search and generate the tax report for your own wallet seamlessly.
 
