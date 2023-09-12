@@ -1,6 +1,4 @@
-# Ordinals Tracker (tracker-front)
-
-# BTC Tax Report Tool
+# Ordinals Tax Report Tool
 
 ## Overview
 
